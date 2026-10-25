@@ -34,10 +34,16 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.5，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.6，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.2.6（辅助说明字号生效）
+
+- 修复「外观与显示 → 字体大小 → 辅助说明」调了没反应：新增统一的辅助说明字号（`captionSize`），受该倍率控制。
+- 已接入的位置：页面眉标、设置项说明（SettingBlock hint / SettingRow hint）、彩色说明卡正文、折叠模块右侧说明、输入框标签与占位符、空状态提示、设置首页描述，以及今天 / 待办 / 规划页的辅助文字（日期说明、任务 meta、统计标签、空状态说明等）。
+- 正文文字、页面标题、课表文字三档不变；四档字号现在都能实际看到效果。
+- JVM 单测本轮因本机构建缓存权限未跑（逻辑未变），lint 0/0。
 ## V1.2.5（标准字号 = 上一版最小档）
 
 - 按真机反馈，把课表文字整体基准再缩小 20%：**上一版「课表文字-小(80%)」的观感 = 现在的「标准(100%)」**；默认打开就是合适的字号。

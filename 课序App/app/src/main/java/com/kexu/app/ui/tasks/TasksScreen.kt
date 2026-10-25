@@ -57,6 +57,7 @@ import com.kexu.app.ui.components.ConfirmDialog
 import com.kexu.app.ui.components.KSegmented
 import com.kexu.app.ui.components.KTextField
 import com.kexu.app.ui.components.KexuDialog
+import com.kexu.app.ui.components.captionSize
 import com.kexu.app.ui.components.MoreActionsDialog
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.components.RowAction
@@ -307,7 +308,7 @@ private fun TaskPageHeader(
             Text(
                 "所有任务",
                 color = colors.muted,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 modifier = Modifier.weight(1f)
@@ -315,7 +316,7 @@ private fun TaskPageHeader(
             Text(
                 "排序：${sort.label}",
                 color = colors.accent,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 modifier = Modifier
@@ -347,7 +348,7 @@ private fun TaskPageHeader(
             Text(
                 "项任务",
                 color = colors.muted,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
@@ -589,13 +590,13 @@ private fun LongTermSection(
         Spacer(Modifier.height(3.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
             Box(Modifier.width(80.dp), contentAlignment = Alignment.Center) {
-                Text("进行中", color = colors.muted, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text("进行中", color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.Medium)
             }
             Spacer(Modifier.width(18.dp))
             Text(
                 summaryMeta,
                 color = colors.muted,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 lineHeight = 21.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -658,7 +659,7 @@ private fun PrioritySpot(task: Task, state: AppUiState, onClick: () -> Unit) {
             Text(
                 priorityTag(task),
                 color = spotInk.copy(alpha = 0.8f),
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -677,7 +678,7 @@ private fun PrioritySpot(task: Task, state: AppUiState, onClick: () -> Unit) {
             Text(
                 priorityBottomText(task, state),
                 color = spotInk,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -745,7 +746,7 @@ private fun TaskRow(
             Text(
                 taskMeta(task, state, tone.ink),
                 color = colors.body,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 lineHeight = 21.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
@@ -763,7 +764,7 @@ private fun TaskRow(
                 task.week != null -> colors.accent
                 else -> colors.warn
             },
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             fontWeight = FontWeight.Bold,
             maxLines = 1
         )
@@ -804,7 +805,7 @@ private fun GoalSpot(goal: Goal, onAdvance: () -> Unit, onLongClick: () -> Unit)
             Text(
                 "第 ${goal.currentWeek} 周 · 本周 ${goal.doneHours}/${goal.weeklyHours} 小时",
                 color = colors.body,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 lineHeight = 20.sp
             )
             Spacer(Modifier.height(9.dp))
@@ -950,16 +951,16 @@ fun AddTaskDialog(
                     .padding(horizontal = 12.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                Text("关联课程", color = colors.muted, fontSize = 13.sp)
+                Text("关联课程", color = colors.muted, fontSize = captionSize(13f))
                 Text(
                     state.courseById(courseId)?.name ?: "不关联",
                     color = colors.ink,
-                    fontSize = 13.sp,
+                    fontSize = captionSize(13f),
                     fontWeight = FontWeight.SemiBold
                 )
             }
             Spacer(Modifier.height(12.dp))
-            Text("优先级", color = colors.muted, fontSize = 13.sp)
+            Text("优先级", color = colors.muted, fontSize = captionSize(13f))
             Spacer(Modifier.height(5.dp))
             KSegmented(
                 options = listOf("low" to "低", "medium" to "中", "high" to "高"),
@@ -967,7 +968,7 @@ fun AddTaskDialog(
                 onSelect = { priority = it }
             )
             Spacer(Modifier.height(12.dp))
-            Text("预计时长：${KexuCore.formatDuration(minutes)}", color = colors.muted, fontSize = 13.sp)
+            Text("预计时长：${KexuCore.formatDuration(minutes)}", color = colors.muted, fontSize = captionSize(13f))
             Row(Modifier.padding(top = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 listOf(25, 45, 60, 90, 120).forEach { value ->
                     Box(
@@ -977,7 +978,7 @@ fun AddTaskDialog(
                             .clickable { minutes = value }
                             .padding(horizontal = 10.dp, vertical = 6.dp)
                     ) {
-                        Text("$value", color = if (minutes == value) colors.accent else colors.muted, fontSize = 13.sp)
+                        Text("$value", color = if (minutes == value) colors.accent else colors.muted, fontSize = captionSize(13f))
                     }
                 }
             }
@@ -990,7 +991,7 @@ fun AddTaskDialog(
             )
 
             Spacer(Modifier.height(12.dp))
-            Text("重复", color = colors.muted, fontSize = 13.sp)
+            Text("重复", color = colors.muted, fontSize = captionSize(13f))
             Spacer(Modifier.height(5.dp))
             KSegmented(
                 options = listOf(
@@ -1012,7 +1013,7 @@ fun AddTaskDialog(
                 Text(
                     "完成后自动生成下一条",
                     color = colors.muted,
-                    fontSize = 13.sp,
+                    fontSize = captionSize(13f),
                     modifier = Modifier.padding(top = 4.dp)
                 )
             }
@@ -1038,13 +1039,13 @@ fun AddTaskDialog(
                 }
                 Spacer(Modifier.width(8.dp))
                 Column {
-                    Text("自己安排时间", color = colors.ink, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
-                    Text("不勾选则保存到「待安排」", color = colors.muted, fontSize = 13.sp)
+                    Text("自己安排时间", color = colors.ink, fontSize = captionSize(), fontWeight = FontWeight.SemiBold)
+                    Text("不勾选则保存到「待安排」", color = colors.muted, fontSize = captionSize(13f))
                 }
             }
             if (scheduleEnabled) {
                 Spacer(Modifier.height(8.dp))
-                Text("星期", color = colors.muted, fontSize = 13.sp)
+                Text("星期", color = colors.muted, fontSize = captionSize(13f))
                 Spacer(Modifier.height(5.dp))
                 KexuCore.WEEKDAY_CN.chunked(4).forEach { chunk ->
                     Row(Modifier.fillMaxWidth().padding(bottom = 4.dp), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
@@ -1059,7 +1060,7 @@ fun AddTaskDialog(
                                     .padding(vertical = 7.dp),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(label, color = if (weekday == index) colors.accent else colors.muted, fontSize = 13.sp)
+                                Text(label, color = if (weekday == index) colors.accent else colors.muted, fontSize = captionSize(13f))
                             }
                         }
                         if (chunk.size < 4) Spacer(Modifier.weight((4 - chunk.size).toFloat()))
@@ -1068,17 +1069,17 @@ fun AddTaskDialog(
                 Spacer(Modifier.height(6.dp))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     KTextField(from, { from = it }, label = "开始", placeholder = "14:00", modifier = Modifier.weight(1f))
-                    Text("—", color = colors.muted, fontSize = 13.sp, modifier = Modifier.padding(horizontal = 8.dp))
+                    Text("—", color = colors.muted, fontSize = captionSize(13f), modifier = Modifier.padding(horizontal = 8.dp))
                     KTextField(to, { to = it }, label = "结束", placeholder = "15:00", modifier = Modifier.weight(1f))
                 }
-                Text("时间格式 HH:mm", color = colors.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+                Text("时间格式 HH:mm", color = colors.muted, fontSize = captionSize(13f), modifier = Modifier.padding(top = 4.dp))
                 val previewFrom = KexuCore.minutesOf(from)
                 val previewTo = KexuCore.minutesOf(to)
                 if (previewFrom >= 0 && previewTo > previewFrom && (previewTo - previewFrom) != minutes) {
                     Text(
                         "实际安排 ${previewTo - previewFrom} 分钟，保存后预计时长按 ${previewTo - previewFrom} 分钟计算",
                         color = colors.warn,
-                        fontSize = 13.sp,
+                        fontSize = captionSize(13f),
                         lineHeight = 19.sp,
                         modifier = Modifier.padding(top = 4.dp)
                     )
@@ -1086,7 +1087,7 @@ fun AddTaskDialog(
             }
 
             if (error != null) {
-                Text(error!!, color = colors.danger, fontSize = 13.sp, modifier = Modifier.padding(top = 6.dp))
+                Text(error!!, color = colors.danger, fontSize = captionSize(13f), modifier = Modifier.padding(top = 6.dp))
             }
             Spacer(Modifier.height(14.dp))
             PrimaryButton("保存任务", modifier = Modifier.fillMaxWidth()) {
@@ -1138,7 +1139,7 @@ fun AddTaskDialog(
                             showCoursePicker = false
                         }
                         .padding(vertical = 10.dp)
-                ) { Text("不关联课程", color = colors.ink, fontSize = 14.sp) }
+                ) { Text("不关联课程", color = colors.ink, fontSize = captionSize()) }
                 state.courses.forEach { course ->
                     Row(
                         Modifier
@@ -1152,7 +1153,7 @@ fun AddTaskDialog(
                     ) {
                         Box(Modifier.size(8.dp).clip(RoundedCornerShape(4.dp)).background(toneOf(course.colorHex, colors.dark).base))
                         Spacer(Modifier.width(8.dp))
-                        Text(course.name, color = colors.ink, fontSize = 14.sp)
+                        Text(course.name, color = colors.ink, fontSize = captionSize())
                     }
                 }
             }

@@ -69,6 +69,7 @@ import com.kexu.app.ui.components.KStepper
 import com.kexu.app.ui.components.KSwitch
 import com.kexu.app.ui.components.KTextField
 import com.kexu.app.ui.components.KexuDialog
+import com.kexu.app.ui.components.captionSize
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.components.SectionTitle
 import com.kexu.app.ui.components.SettingCategoryRow
@@ -134,7 +135,7 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
             Column(Modifier.weight(1f)) {
-                Text("个人配置 / 日程偏好", color = colors.muted, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text("个人配置 / 日程偏好", color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(6.dp))
                 Text(
                     "设置",
@@ -145,7 +146,7 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
                     lineHeight = (41f * fonts.title / fonts.body).sp
                 )
                 Spacer(Modifier.height(8.dp))
-                Text("让课序适应你的学习节奏", color = colors.muted, fontSize = 14.sp, lineHeight = 21.sp)
+                Text("让课序适应你的学习节奏", color = colors.muted, fontSize = captionSize(), lineHeight = 21.sp)
             }
             Text(
                 "✳",
@@ -242,7 +243,7 @@ private fun CourseSemesterFeatureCard(onClick: () -> Unit) {
             Text(
                 "教学周、课表导入、\n自定义节次与课程颜色",
                 color = colors.body,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 lineHeight = 21.sp
             )
         }
@@ -286,7 +287,7 @@ private fun SchedulePlanCard(focusMinutes: Int, onClick: () -> Unit) {
                 letterSpacing = (-0.5).sp
             )
             Spacer(Modifier.height(8.dp))
-            Text("空闲时间、任务拆分、排程偏好", color = subColor, fontSize = 14.sp)
+            Text("空闲时间、任务拆分、排程偏好", color = subColor, fontSize = captionSize())
         }
         Spacer(Modifier.width(10.dp))
         Box(
@@ -328,7 +329,7 @@ private fun SettingBlock(label: String, hint: String? = null, control: @Composab
         Text(label, color = colors.ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
         if (hint != null) {
             Spacer(Modifier.height(4.dp))
-            Text(hint, color = colors.muted, fontSize = 14.sp, lineHeight = 20.sp)
+            Text(hint, color = colors.muted, fontSize = captionSize(), lineHeight = 20.sp)
         }
         Spacer(Modifier.height(10.dp))
         control()
@@ -473,7 +474,7 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
         Text(
             "支持 CSV / ICS / PDF / XLSX / HTML / 图片（含扫描版 OCR），导入前可逐条预览修正。",
             color = colors.muted,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             lineHeight = 21.sp
         )
         Spacer(Modifier.height(6.dp))
@@ -489,7 +490,7 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
         Text(
             "导出模板交给 AI 整理成 CSV / JSON，再导回课序。",
             color = colors.muted,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             lineHeight = 21.sp
         )
         Spacer(Modifier.height(6.dp))
@@ -506,7 +507,7 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
             Text(
                 if (coursesExpanded) "收起课程列表" else "展开全部 ${state.courses.size} 门课程",
                 color = colors.accent,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .clickable { coursesExpanded = !coursesExpanded }
@@ -518,7 +519,7 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
         Text(
             "课表按节次显示，可逐节调整上下课时间。",
             color = colors.muted,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             lineHeight = 21.sp
         )
         PeriodAxisPreview(periods = draftPeriods)
@@ -536,13 +537,13 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
-                    Text("第 ${index + 1} 节", color = colors.muted, fontSize = 14.sp, modifier = Modifier.width(56.dp))
+                    Text("第 ${index + 1} 节", color = colors.muted, fontSize = captionSize(), modifier = Modifier.width(56.dp))
                     KTextField(
                         period.from,
                         { value -> draftPeriods = draftPeriods.toMutableList().also { it[index] = period.copy(from = value) } },
                         modifier = Modifier.width(84.dp)
                     )
-                    Text("—", color = colors.muted, fontSize = 14.sp)
+                    Text("—", color = colors.muted, fontSize = captionSize())
                     KTextField(
                         period.to,
                         { value -> draftPeriods = draftPeriods.toMutableList().also { it[index] = period.copy(to = value) } },
@@ -553,7 +554,7 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
                         Text(
                             "删除",
                             color = colors.muted,
-                            fontSize = 14.sp,
+                            fontSize = captionSize(),
                             modifier = Modifier
                                 .clickable { draftPeriods = draftPeriods.toMutableList().also { it.removeAt(index) } }
                                 .padding(6.dp)
@@ -562,7 +563,7 @@ private fun CourseSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> U
                 }
             }
             if (periodError != null) {
-                Text(periodError!!, color = colors.danger, fontSize = 14.sp, modifier = Modifier.padding(top = 4.dp))
+                Text(periodError!!, color = colors.danger, fontSize = captionSize(), modifier = Modifier.padding(top = 4.dp))
             }
             Spacer(Modifier.height(8.dp))
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -673,9 +674,9 @@ private fun CourseColorRow(course: Course, onClick: () -> Unit) {
         Column(Modifier.weight(1f)) {
             Text(course.name, color = colors.ink, fontSize = 16.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(3.dp))
-            Text(meta, color = colors.muted, fontSize = 14.sp)
+            Text(meta, color = colors.muted, fontSize = captionSize())
         }
-        Text("改色", color = colors.accent, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+        Text("改色", color = colors.accent, fontSize = captionSize(), fontWeight = FontWeight.Bold)
         Text("›", color = colors.muted, fontSize = 20.sp, modifier = Modifier.padding(start = 4.dp))
     }
     HorizontalDivider(color = colors.line)
@@ -796,7 +797,7 @@ private fun TimeRangeBar(start: String, end: String, onStart: (String) -> Unit, 
         verticalAlignment = Alignment.CenterVertically
     ) {
         KTextField(start, onStart, modifier = Modifier.weight(1f))
-        Text("至", color = colors.muted, fontSize = 14.sp, modifier = Modifier.padding(horizontal = 12.dp))
+        Text("至", color = colors.muted, fontSize = captionSize(), modifier = Modifier.padding(horizontal = 12.dp))
         KTextField(end, onEnd, modifier = Modifier.weight(1f))
     }
 }
@@ -873,7 +874,7 @@ private fun ReminderSettings(state: AppUiState, vm: KexuViewModel, onBack: () ->
             KSwitch(state.prefs.vibrateEnabled) { value -> vm.updatePrefs { it.copy(vibrateEnabled = value) } }
         }
         SettingRow("提醒声音") {
-            Text(state.prefs.sound, color = colors.muted, fontSize = 14.sp)
+            Text(state.prefs.sound, color = colors.muted, fontSize = captionSize())
         }
     }
 }
@@ -904,14 +905,14 @@ private fun AlarmSpot(minutes: Int, exactGranted: Boolean, notifyEnabled: Boolea
             Text(
                 "上课提醒 · 精确闹钟${if (exactGranted) "已授权" else "未授权"}",
                 color = foreground.copy(alpha = 0.86f),
-                fontSize = 14.sp
+                fontSize = captionSize()
             )
         }
         Spacer(Modifier.width(10.dp))
         Text(
             if (notifyEnabled) "通知已开" else "通知已关",
             color = foreground,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .clip(RoundedCornerShape(10.dp))
@@ -1138,7 +1139,7 @@ private fun DataSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> Uni
     }, onDismiss = { confirmClear = false })
     selfTestResult?.let { result ->
         KexuDialog(title = "逻辑自检", onDismiss = { selfTestResult = null }) {
-            Text(result, color = colors.ink2, fontSize = 14.sp, lineHeight = 22.sp)
+            Text(result, color = colors.ink2, fontSize = captionSize(), lineHeight = 22.sp)
         }
     }
 }
@@ -1181,7 +1182,7 @@ private fun AboutLine(title: String, body: String) {
     Column {
         Text(title, color = colors.ink, fontSize = 15.sp, fontWeight = FontWeight.Bold)
         Spacer(Modifier.height(3.dp))
-        Text(body, color = colors.body, fontSize = 14.sp, lineHeight = 21.sp)
+        Text(body, color = colors.body, fontSize = captionSize(), lineHeight = 21.sp)
     }
 }
 

@@ -114,6 +114,7 @@ fun PageHeader(
 @Composable
 fun SectionTitle(text: String, trailing: String? = null) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     Row(
         Modifier
             .fillMaxWidth()
@@ -128,7 +129,7 @@ fun SectionTitle(text: String, trailing: String? = null) {
             letterSpacing = (-0.4).sp,
             modifier = Modifier.weight(1f)
         )
-        if (trailing != null) Text(trailing, color = colors.muted, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        if (trailing != null) Text(trailing, color = colors.muted, fontSize = (14f * fonts.caption / fonts.body).sp, fontWeight = FontWeight.Medium)
     }
 }
 
@@ -291,11 +292,12 @@ fun KTextField(
     placeholder: String? = null
 ) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
-        label = label?.let { { Text(it, fontSize = 13.sp) } },
-        placeholder = placeholder?.let { { Text(it, fontSize = 14.sp, color = colors.muted) } },
+        label = label?.let { { Text(it, fontSize = (13f * fonts.caption / fonts.body).sp) } },
+        placeholder = placeholder?.let { { Text(it, fontSize = (14f * fonts.caption / fonts.body).sp, color = colors.muted) } },
         singleLine = true,
         textStyle = androidx.compose.ui.text.TextStyle(fontSize = 15.sp, color = colors.ink),
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
@@ -337,6 +339,7 @@ fun CollapsibleModule(
     content: @Composable () -> Unit
 ) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     HorizontalDivider(color = colors.line)
     Column {
         Row(
@@ -357,7 +360,7 @@ fun CollapsibleModule(
             Text(
                 meta ?: "$count",
                 color = colors.muted,
-                fontSize = 14.sp,
+                fontSize = (14f * fonts.caption / fonts.body).sp,
                 fontWeight = FontWeight.Medium,
                 modifier = Modifier.padding(end = 10.dp)
             )
@@ -449,7 +452,8 @@ fun PrimaryButton(text: String, modifier: Modifier = Modifier, onClick: () -> Un
 @Composable
 fun EmptyHint(text: String) {
     val colors = LocalKexuColors.current
-    Text(text, color = colors.muted, fontSize = 14.sp, lineHeight = 21.sp, modifier = Modifier.padding(vertical = 10.dp))
+    val fonts = LocalFontScales.current
+    Text(text, color = colors.muted, fontSize = (14f * fonts.caption / fonts.body).sp, lineHeight = (21f * fonts.caption / fonts.body).sp, modifier = Modifier.padding(vertical = 10.dp))
 }
 
 @Composable
@@ -573,7 +577,8 @@ fun SettingsHero(
     ) {
         Text(title, color = titleColor, fontSize = 23.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp)
         Spacer(Modifier.height(8.dp))
-        Text(body, color = bodyColor, fontSize = 14.sp, lineHeight = 22.sp)
+        val fonts = LocalFontScales.current
+        Text(body, color = bodyColor, fontSize = (14f * fonts.caption / fonts.body).sp, lineHeight = (22f * fonts.caption / fonts.body).sp)
     }
 }
 
@@ -588,6 +593,7 @@ fun SettingCategoryRow(
     onClick: () -> Unit
 ) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     Row(
         Modifier
             .fillMaxWidth()
@@ -608,7 +614,7 @@ fun SettingCategoryRow(
         Column(Modifier.weight(1f)) {
             Text(title, color = colors.ink, fontSize = 18.sp, fontWeight = FontWeight.Bold)
             Spacer(Modifier.height(5.dp))
-            Text(subtitle, color = colors.muted, fontSize = 14.sp, lineHeight = 20.sp)
+            Text(subtitle, color = colors.muted, fontSize = (14f * fonts.caption / fonts.body).sp, lineHeight = (20f * fonts.caption / fonts.body).sp)
         }
         Text("›", color = colors.muted, fontSize = 25.sp)
     }
@@ -671,4 +677,11 @@ fun DataActionRow(text: String, trailing: String = "↗", danger: Boolean = fals
         )
         Text(trailing, color = if (danger) colors.danger else colors.muted, fontSize = 18.sp)
     }
+}
+
+/** 辅助说明字号：统一受「外观与显示 → 字体大小 → 辅助说明」倍率控制。 */
+@Composable
+fun captionSize(base: Float = 14f): androidx.compose.ui.unit.TextUnit {
+    val fonts = LocalFontScales.current
+    return (base * fonts.caption / fonts.body).sp
 }

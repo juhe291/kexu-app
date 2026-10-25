@@ -46,6 +46,7 @@ import com.kexu.app.domain.Task
 import com.kexu.app.ui.AppUiState
 import com.kexu.app.ui.KexuViewModel
 import com.kexu.app.ui.components.KexuDialog
+import com.kexu.app.ui.components.captionSize
 import com.kexu.app.ui.components.PageHeader
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.goals.AddGoalDialog
@@ -164,7 +165,7 @@ fun PlanningScreen(
             Text(
                 "结合课程与空闲时间，为任务找到合适的位置",
                 color = colors.body,
-                fontSize = 14.sp,
+                fontSize = captionSize(),
                 lineHeight = 21.sp
             )
             Spacer(Modifier.height(20.dp))
@@ -213,7 +214,7 @@ fun PlanningScreen(
                         hasConflict -> colors.warn
                         else -> colors.ok
                     },
-                    fontSize = 14.sp,
+                    fontSize = captionSize(),
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -224,7 +225,7 @@ fun PlanningScreen(
                 Text(
                     "未来一周没有找到足够长的空闲时间，可在设置中调整每日可安排时间。",
                     color = colors.body,
-                    fontSize = 14.sp,
+                    fontSize = captionSize(),
                     lineHeight = 22.sp,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
@@ -280,7 +281,7 @@ fun PlanningScreen(
 
         item {
             PlanSectionHead(title = "长期目标") {
-                Text("每周持续推进", color = colors.muted, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+                Text("每周持续推进", color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.Medium)
             }
             GoalSpot(goal = state.goals.firstOrNull())
         }
@@ -294,7 +295,7 @@ fun PlanningScreen(
         KexuDialog(title = "选择要安排的任务", onDismiss = { showTaskPicker = false }) {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                 if (candidates.isEmpty()) {
-                    Text("没有待安排的任务。", color = colors.muted, fontSize = 14.sp)
+                    Text("没有待安排的任务。", color = colors.muted, fontSize = captionSize())
                 }
                 candidates.forEach { task ->
                     val selected = task.id == focus?.id
@@ -322,7 +323,7 @@ fun PlanningScreen(
                             Text(
                                 "待安排 · 预计 ${KexuCore.formatDuration(task.estimatedMinutes)}",
                                 color = colors.muted,
-                                fontSize = 14.sp,
+                                fontSize = captionSize(),
                                 modifier = Modifier.padding(top = 3.dp)
                             )
                         }
@@ -427,7 +428,7 @@ private fun WeekRhythmBlock(
                     Text(
                         letter,
                         color = colors.muted,
-                        fontSize = 14.sp,
+                        fontSize = captionSize(),
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(Modifier.height(9.dp))
@@ -466,7 +467,7 @@ private fun RhythmStat(
 ) {
     val colors = LocalKexuColors.current
     Column(horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start) {
-        Text(label, color = colors.muted, fontSize = 14.sp, fontWeight = FontWeight.Medium)
+        Text(label, color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(6.dp))
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
@@ -482,7 +483,7 @@ private fun RhythmStat(
                 Text(
                     unit,
                     color = colors.muted,
-                    fontSize = 14.sp,
+                    fontSize = captionSize(),
                     modifier = Modifier.padding(bottom = 3.dp)
                 )
             }
@@ -543,14 +544,14 @@ private fun ScheduleStrategyBlock(state: AppUiState, onAdjust: () -> Unit) {
                 "默认任务 ${state.prefs.defaultTaskMinutes} 分钟 · " +
                 "专注上限 ${state.prefs.focusMinutes} 分钟",
             color = colors.muted,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             lineHeight = 22.sp
         )
         Spacer(Modifier.height(6.dp))
         Text(
             "优先保护固定课程与休息时间，不移动你锁定的任务。",
             color = colors.muted,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             lineHeight = 22.sp
         )
         Spacer(Modifier.height(4.dp))
@@ -591,7 +592,7 @@ private fun PlanHero(
                 .border(1.dp, Color.White.copy(alpha = 0.04f), CircleShape)
         )
         Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 23.dp, bottom = 25.dp)) {
-            Text(over, color = overColor, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            Text(over, color = overColor, fontSize = captionSize(), fontWeight = FontWeight.SemiBold)
             Text(
                 title,
                 color = foreground,
@@ -650,12 +651,12 @@ private fun CurrentTaskRow(title: String, onClick: () -> Unit) {
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("当前任务：", color = colors.muted, fontSize = 14.sp)
+        Text("当前任务：", color = colors.muted, fontSize = captionSize())
         Spacer(Modifier.width(2.dp))
         Text(
             title,
             color = colors.ink,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             fontWeight = FontWeight.Bold,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
@@ -750,7 +751,7 @@ private fun GoalSpot(goal: Goal?) {
         Text(
             "还没有长期目标，可在待办页添加并每周推进。",
             color = colors.body,
-            fontSize = 14.sp,
+            fontSize = captionSize(),
             lineHeight = 21.sp
         )
         return
@@ -779,7 +780,7 @@ private fun GoalSpot(goal: Goal?) {
             Text(
                 "第 ${goal.currentWeek} / ${goal.totalWeeks} 周 · 本周已学 ${goal.doneHours} / ${goal.weeklyHours} 小时",
                 color = colors.body,
-                fontSize = 14.sp
+                fontSize = captionSize()
             )
             Spacer(Modifier.height(9.dp))
             Box(
