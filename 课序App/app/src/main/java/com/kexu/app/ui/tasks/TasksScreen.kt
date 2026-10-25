@@ -61,6 +61,7 @@ import com.kexu.app.ui.components.MoreActionsDialog
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.components.RowAction
 import com.kexu.app.ui.goals.AddGoalDialog
+import com.kexu.app.ui.theme.LocalFontScales
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.toneOf
 import java.time.LocalDate
@@ -328,7 +329,7 @@ private fun TaskPageHeader(
             Text(
                 "待办",
                 color = colors.ink,
-                fontSize = 35.sp,
+                fontSize = (35f * LocalFontScales.current.title / LocalFontScales.current.body).sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = (-1.5).sp,
                 lineHeight = 40.sp

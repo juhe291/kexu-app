@@ -76,6 +76,7 @@ import com.kexu.app.ui.components.SettingRow
 import com.kexu.app.ui.components.SettingsHero
 import com.kexu.app.ui.components.SettingsSubHeader
 import com.kexu.app.ui.imports.ImportPreviewDialog
+import com.kexu.app.ui.theme.LocalFontScales
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.hexColor
 import com.kexu.app.ui.theme.toneOf
@@ -122,6 +123,7 @@ fun SettingsScreen(
 @Composable
 private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     var showAbout by remember { mutableStateOf(false) }
     Column(
         Modifier
@@ -137,10 +139,10 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
                 Text(
                     "设置",
                     color = colors.ink,
-                    fontSize = 35.sp,
+                    fontSize = (35f * fonts.title / fonts.body).sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = (-1.5).sp,
-                    lineHeight = 41.sp
+                    lineHeight = (41f * fonts.title / fonts.body).sp
                 )
                 Spacer(Modifier.height(8.dp))
                 Text("让课序适应你的学习节奏", color = colors.muted, fontSize = 14.sp, lineHeight = 21.sp)

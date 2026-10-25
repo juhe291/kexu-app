@@ -527,6 +527,7 @@ fun MoreActionsDialog(
 @Composable
 fun SettingsSubHeader(title: String, onBack: () -> Unit) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     Row(
         Modifier
             .fillMaxWidth()
@@ -547,7 +548,7 @@ fun SettingsSubHeader(title: String, onBack: () -> Unit) {
         Text(
             title,
             color = colors.ink,
-            fontSize = 27.sp,
+            fontSize = (27f * fonts.title / fonts.body).sp,
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = (-0.7).sp
         )

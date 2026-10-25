@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.requiredHeight
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
@@ -136,7 +137,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                 Text("第 $week 教学周 · 共 ${state.semester.totalWeeks} 周", color = colors.accent2, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(2.dp))
-            Text("课程表", color = colors.ink, fontSize = 27.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp)
+            Text("课程表", color = colors.ink, fontSize = (27f * fonts.title / fonts.body).sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp)
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {
                 NavButton("‹") { if (weekOffset > 1 - currentWeek) weekOffset -= 1 }
@@ -193,24 +194,32 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                     Text("节次", color = colors.muted, fontSize = 9.5.sp)
                 }
                 Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
-                  Column(Modifier.fillMaxWidth().graphicsLayer { translationY = -vScroll.value.toFloat() }) {
+                  Column(
+                      Modifier
+                          .fillMaxWidth()
+                          // 必须用 requiredHeight 撑满整个课表高度：否则 Column 被父级可见高度截断，
+                          // 滚动到午休以后的行（7、8 节…）不会绘制，左侧时间轴就出现空白。
+                          .requiredHeight((layout.totalPx * layoutZoom).dp)
+                          .graphicsLayer { translationY = -vScroll.value.toFloat() }
+                  ) {
                     layout.rows.forEachIndexed { index, row ->
                         if (row.gapPx > 0f) {
                             Box(
                                 Modifier
                                     .fillMaxWidth()
-                                    .height((row.gapPx * layoutZoom).dp),
+                                    .height((row.gapPx * layoutZoom).dp)
+                                    .background(colors.surface2.copy(alpha = 0.55f)),
                                 contentAlignment = Alignment.Center
                             ) {
                                 if (row.gapLabel.isNotEmpty()) {
                                     Text(
                                         row.gapLabel,
                                         color = colors.muted,
-                                        fontSize = 11.5.sp,
+                                        fontSize = 8.5.sp,
                                         modifier = Modifier
                                             .border(1.dp, colors.gridLine, RoundedCornerShape(6.dp))
                                             .background(colors.surface)
-                                            .padding(horizontal = 4.dp, vertical = 2.dp)
+                                            .padding(horizontal = 3.dp, vertical = 1.dp)
                                     )
                                 }
                             }
@@ -230,9 +239,9 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                             contentAlignment = Alignment.Center
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text("${index + 1}", color = colors.ink, fontSize = 12.5.sp, fontWeight = FontWeight.ExtraBold)
-                                Text(state.periods[index].from, color = colors.muted, fontSize = 12.sp)
-                                Text(state.periods[index].to, color = colors.muted, fontSize = 12.sp)
+                                Text("${index + 1}", color = colors.ink2, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                Text(state.periods[index].from, color = colors.muted, fontSize = 8.5.sp)
+                                Text(state.periods[index].to, color = colors.muted, fontSize = 8.5.sp)
                             }
                         }
                     }
@@ -333,10 +342,11 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                             }
 
                             // 空白格点击区域：点一下即可添加任务或课程
+                            // 高度必须跟视觉网格一样按 layoutZoom 缩放，否则点击命中的节次/日期会错位
                             Column(Modifier.fillMaxSize()) {
                                 layout.rows.forEach { row ->
-                                    if (row.gapPx > 0f) Spacer(Modifier.height(row.gapPx.dp))
-                                    Row(Modifier.fillMaxWidth().height(row.heightPx.dp)) {
+                                    if (row.gapPx > 0f) Spacer(Modifier.height((row.gapPx * layoutZoom).dp))
+                                    Row(Modifier.fillMaxWidth().height((row.heightPx * layoutZoom).dp)) {
                                         for (day in 0..6) {
                                             Box(
                                                 Modifier

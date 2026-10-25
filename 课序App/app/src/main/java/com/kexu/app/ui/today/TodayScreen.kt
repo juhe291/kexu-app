@@ -67,6 +67,7 @@ import com.kexu.app.ui.courses.CourseEditDialog
 import com.kexu.app.ui.goals.AddGoalDialog
 import com.kexu.app.ui.tasks.AddTaskDialog
 import com.kexu.app.ui.tasks.TaskEditDialog
+import com.kexu.app.ui.theme.LocalFontScales
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.toneOf
 import kotlinx.coroutines.delay
@@ -500,6 +501,7 @@ private sealed interface AgendaItem {
 @Composable
 private fun DateStand(dateLine: String, title: String, semesterLabel: String) {
     val colors = LocalKexuColors.current
+    val fonts = LocalFontScales.current
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
         Column(Modifier.weight(1f)) {
             Text(dateLine, color = colors.muted, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
@@ -510,10 +512,10 @@ private fun DateStand(dateLine: String, title: String, semesterLabel: String) {
                     withStyle(SpanStyle(color = colors.accent)) { append(".") }
                 },
                 color = colors.ink,
-                fontSize = 44.sp,
+                fontSize = (44f * fonts.title / fonts.body).sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = (-2.2).sp,
-                lineHeight = 48.sp,
+                lineHeight = (48f * fonts.title / fonts.body).sp,
                 maxLines = 1
             )
         }

@@ -34,10 +34,18 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.0，R8 混淆，约 52 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.1，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.2.1（课表修复）
+
+- 修复课表左侧时间轴在午休横带以下出现空白的问题：时间轴内容列之前被父级可见高度截断，滚动到第 7、8 节及以后时不再绘制；现用 `requiredHeight` 撑满整个课表高度，所有节次时间都能正常显示。
+- 修复课表空白格点击命中问题：空白格点击层的高度之前没有跟随双指缩放，缩放到 101% 后点击位置会偏移；现在点击层与视觉网格同步按缩放比例计算，点哪格就添加在哪一节。
+- 时间轴字号与午休/晚餐横带样式回调为紧凑版，避免文字拥挤。
+- 字体设置：`页面标题` 字号现在作用于所有页面的大标题（今天、待办、设置、课表、设置二级页），不再只有部分页面生效。
+- JVM 测试 188 个全部通过，lint 0 errors / 0 warnings。
+- APK：`课序-v1.2.1-release.apk`（versionCode 71 / 1.2.1）。
 ## V1.2.0（按真机反馈调整）
 
 - **状态栏适配**：启用 edge-to-edge + 顶栏 `statusBarsPadding()` / 底栏 `navigationBarsPadding()`，内容不再被系统状态栏遮挡；状态栏与导航栏图标颜色随浅色/深色主题自动切换。
