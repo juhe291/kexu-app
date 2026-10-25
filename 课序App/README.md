@@ -34,10 +34,17 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.2，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.3，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.2.3（课表文字再缩小 + 空隙随缩放自适应）
+
+- 课表文字进一步调小：初始 100% 时课程块标题约 9.8dp、时间/教室约 7.1dp；时间轴节次号约 9.8dp，且只显示**开始时间**（减少一行占高）。
+- 课程块 / 任务块内边距改为按块高自适应，缩小放大时不再"字挤边"。
+- 午休 / 晚餐 / 休息横带高度现在**跟随双指缩放同步变化**（之前横带高度不缩放，会压住课程块/错位），横带文字大小也按横带高度自适应，太窄时自动隐藏文字。
+- 「课表文字」四档字号继续生效；自适应上限保证放大到 150%/200% 不重叠。
+- JVM 测试 188 通过，lint 0/0。
 ## V1.2.2（课表字号回归舒适 + 设置生效）
 
 - 课表字号基准整体调小：初始（100% 缩放、标准字号）下课程块标题约 11dp、时间/教室约 8dp，时间轴节次号约 10.5dp、时间约 7.8dp，不再偏大。
