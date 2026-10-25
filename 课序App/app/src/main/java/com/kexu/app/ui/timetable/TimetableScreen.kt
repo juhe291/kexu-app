@@ -111,6 +111,8 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
     }
     var layoutZoom by remember { mutableFloatStateOf(1f) }
     var pinchScale by remember { mutableFloatStateOf(1f) }
+    // 双指缩放时文字只跟一半大小，避免放大后字体夸张
+    val textZoom = 1f + (layoutZoom - 1f) * 0.5f
     val axisW = AXIS_BASE * layoutZoom
     val colW = COL_BASE * layoutZoom
     var selectedDay by remember { mutableIntStateOf(KexuCore.weekdayIndex(LocalDate.now())) }
@@ -230,15 +232,16 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                       }
                     }
                     val rowH = row.heightPx * layoutZoom
+                    val textRowH = row.heightPx * textZoom
                     val rowTop = (row.topPx * layoutZoom).dp
                     val showTimes = rowH >= 44f
-                    val numSp = axisSp(rowH * 0.145f, rowH * 0.24f)
-                    val timeSp = axisSp(rowH * 0.105f, rowH * 0.175f)
+                    val numSp = axisSp(textRowH * 0.145f, textRowH * 0.24f)
+                    val timeSp = axisSp(textRowH * 0.105f, textRowH * 0.175f)
                     // 时间轴「开始/结束时间」之间的空隙随缩放自动调整：
                     // 行高越大 spacing/行距越大，行高越小越紧凑；字号也按行高封顶，避免重叠。
                     val labelGapDp = (rowH * 0.035f).coerceIn(1f, 6f)
-                    val numLineSp = (rowH * 0.20f / axisFontScale).sp
-                    val timeLineSp = (rowH * 0.16f / axisFontScale).sp
+                    val numLineSp = (textRowH * 0.20f / axisFontScale).sp
+                    val timeLineSp = (textRowH * 0.16f / axisFontScale).sp
                     Box(
                       Modifier
                         .fillMaxWidth()
@@ -406,9 +409,10 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     // 但物理字号不超过块高上限，保证任何缩放下都不溢出。
                                     val ratio = fonts.timetable.coerceIn(0.6f, 2f)
                                     val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
-                                    val titleDp = minOf(blockHPx * 0.135f * ratio, blockHPx * 0.22f)
+                                    val textBlockH = (heightPx * textZoom).coerceAtLeast(24f)
+                                    val titleDp = minOf(textBlockH * 0.135f * ratio, blockHPx * 0.22f)
                                     val titleLineDp = titleDp * 1.24f
-                                    val timeDp = minOf(blockHPx * 0.10f * ratio, blockHPx * 0.17f)
+                                    val timeDp = minOf(textBlockH * 0.10f * ratio, blockHPx * 0.17f)
                                     val showTime = blockHPx >= 48f
                                     val showRoom = blockHPx >= 72f
                                     val timeRows = if (showRoom) 2 else if (showTime) 1 else 0
@@ -510,10 +514,11 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     // 任务块文字同样按块高自适应，并遵守「课表文字」倍率
                                     val ratio = fonts.timetable.coerceIn(0.6f, 2f)
                                     val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
-                                    val taskLabelDp = minOf(blockHPx * 0.10f * ratio, blockHPx * 0.17f)
-                                    val taskTitleDp = minOf(blockHPx * 0.135f * ratio, blockHPx * 0.22f)
+                                    val taskTextBlockH = (heightPx * textZoom).coerceAtLeast(24f)
+                                    val taskLabelDp = minOf(taskTextBlockH * 0.10f * ratio, blockHPx * 0.17f)
+                                    val taskTitleDp = minOf(taskTextBlockH * 0.135f * ratio, blockHPx * 0.22f)
                                     val taskTitleLineDp = taskTitleDp * 1.24f
-                                    val taskTimeDp = minOf(blockHPx * 0.10f * ratio, blockHPx * 0.17f)
+                                    val taskTimeDp = minOf(taskTextBlockH * 0.10f * ratio, blockHPx * 0.17f)
                                     Column(
                                         Modifier
                                             .offset { IntOffset((colW * day + 3.dp).roundToPx(), ((top * layoutZoom).dp + 3.dp).roundToPx()) }
