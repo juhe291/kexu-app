@@ -1,0 +1,50 @@
+# ---------------------------------------------------------------
+# 课序 公开仓库 .gitignore
+# ---------------------------------------------------------------
+
+# Android / Gradle 构建产物
+课序App/.gradle/
+课序App/build/
+课序App/app/build/
+课序App/.idea/
+课序App/local.properties
+课序App/captures/
+.cxx/
+.externalNativeBuild/
+*.iml
+*.hprof
+
+# 可执行/大文件（正式版 APK 通过 GitHub Releases 提供，不入库）
+*.apk
+*.aab
+*.ap_
+*.dex
+*.class
+*.jar.profile
+
+# 真实课表测试样例（含姓名/学号等个人信息，不公开上传）
+课序App/app/src/test/resources/cug_wh_timetable.pdf
+课序App/app/src/test/resources/cug_wh_timetable.xlsx
+课序App/app/src/test/resources/cug_expected.csv
+
+# 本地开发临时文件（个人课表、PDF 渲染、导出脚本等）
+kebiao.pdf
+kebiao.xlsx
+pdf_page-1.png
+pdf_shot.png
+pdfbox_render.png
+pdf_text.txt
+pdf_text2.txt
+RenderPdf.java
+RenderPdf.class
+dump_expected.py
+dump_xlsx.py
+dump_xlsx2.py
+device_0*.png
+_private/
+*.log
+
+# 系统/编辑器
+.DS_Store
+Thumbs.db
+.vscode/
