@@ -194,74 +194,70 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                     Text("节次", color = colors.muted, fontSize = 9.5.sp)
                 }
                 Box(Modifier.weight(1f).fillMaxWidth().clipToBounds()) {
-                  // 课表内字号被 课表文字 设置放大后，时间轴容易挤爆行高；
-                  // 这里按「当前行高」自适应计算标注字号，并抵消课表字号倍率，保证任何字号/缩放下都不重叠。
+                  // 时间轴改为「按滚动位置绝对定位」：每个节次/午休标签直接用与右侧网格相同的
+                  // vScroll 计算纵坐标，不再依赖超高 Column 的 translationY（那样会被父级裁剪，
+                  // 出现午休以下空白、甚至上午标签整段不显示的问题）。
                   val axisFontScale = (density.fontScale * fonts.timetable / fonts.body).coerceAtLeast(0.6f)
-                  Column(
-                      Modifier
+                  layout.rows.forEachIndexed { index, row ->
+                    if (row.gapPx > 0f) {
+                      val gapSp = (row.gapPx * layoutZoom / 3.4f).coerceIn(7f, 13f) / axisFontScale
+                      val gapTop = ((row.topPx - row.gapPx) * layoutZoom).dp
+                      Box(
+                        Modifier
                           .fillMaxWidth()
-                          // 必须用 requiredHeight 撑满整个课表高度：否则 Column 被父级可见高度截断，
-                          // 滚动到午休以后的行（7、8 节…）不会绘制，左侧时间轴就出现空白。
-                          .requiredHeight((layout.totalPx * layoutZoom).dp)
-                          .graphicsLayer { translationY = -vScroll.value.toFloat() }
-                  ) {
-                    layout.rows.forEachIndexed { index, row ->
-                        if (row.gapPx > 0f) {
-                            val gapSp = (row.gapPx * layoutZoom / 3.4f).coerceIn(7f, 10.5f) / axisFontScale
-                            Box(
-                                Modifier
-                                    .fillMaxWidth()
-                                    .height((row.gapPx * layoutZoom).dp)
-                                    .background(colors.surface2.copy(alpha = 0.55f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                if (row.gapLabel.isNotEmpty()) {
-                                    Text(
-                                        row.gapLabel,
-                                        color = colors.muted,
-                                        fontSize = gapSp.sp,
-                                        maxLines = 1,
-                                        modifier = Modifier
-                                            .border(1.dp, colors.gridLine, RoundedCornerShape(6.dp))
-                                            .background(colors.surface)
-                                            .padding(horizontal = 3.dp, vertical = 1.dp)
-                                    )
-                                }
-                            }
+                          .height((row.gapPx * layoutZoom).dp)
+                          .offset { IntOffset(0, (gapTop - vScroll.value.toDp()).roundToPx()) }
+                          .background(colors.surface2.copy(alpha = 0.55f)),
+                        contentAlignment = Alignment.Center
+                      ) {
+                        if (row.gapLabel.isNotEmpty()) {
+                          Text(
+                            row.gapLabel,
+                            color = colors.muted,
+                            fontSize = gapSp.sp,
+                            maxLines = 1,
+                            modifier = Modifier
+                              .border(1.dp, colors.gridLine, RoundedCornerShape(6.dp))
+                              .background(colors.surface)
+                              .padding(horizontal = 3.dp, vertical = 1.dp)
+                          )
                         }
-                        val rowH = row.heightPx * layoutZoom
-                        val showTimes = rowH >= 52f
-                        // 节次号稍大，时间两行稍小；行越矮字号越小，行高足够时最多 14/10.5sp
-                        val numSp = (rowH / 5.6f).coerceIn(9f, 14f) / axisFontScale
-                        val timeSp = (rowH / 8.6f).coerceIn(7f, 10.5f) / axisFontScale
-                        Box(
-                            Modifier
-                                .fillMaxWidth()
-                                .height(rowH.dp)
-                                .drawBehind {
-                                    drawLine(
-                                        colors.line.copy(alpha = 0.65f),
-                                        Offset(0f, size.height - 1f),
-                                        Offset(size.width, size.height - 1f),
-                                        1.dp.toPx()
-                                    )
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(
-                                    "${index + 1}",
-                                    color = colors.ink2,
-                                    fontSize = numSp.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    maxLines = 1
-                                )
-                                if (showTimes) {
-                                    Text(state.periods[index].from, color = colors.muted, fontSize = timeSp.sp, maxLines = 1)
-                                    Text(state.periods[index].to, color = colors.muted, fontSize = timeSp.sp, maxLines = 1)
-                                }
-                            }
+                      }
+                    }
+                    val rowH = row.heightPx * layoutZoom
+                    val rowTop = (row.topPx * layoutZoom).dp
+                    val showTimes = rowH >= 52f
+                    // 字号跟随缩放与行高：放大时变大、缩小时变小，太矮时自动只显示节次号
+                    val numSp = (rowH / 5.6f).coerceIn(9f, 22f) / axisFontScale
+                    val timeSp = (rowH / 8.6f).coerceIn(7f, 15f) / axisFontScale
+                    Box(
+                      Modifier
+                        .fillMaxWidth()
+                        .height(rowH.dp)
+                        .offset { IntOffset(0, (rowTop - vScroll.value.toDp()).roundToPx()) }
+                        .drawBehind {
+                          drawLine(
+                            colors.line.copy(alpha = 0.65f),
+                            Offset(0f, size.height - 1f),
+                            Offset(size.width, size.height - 1f),
+                            1.dp.toPx()
+                          )
+                        },
+                      contentAlignment = Alignment.Center
+                    ) {
+                      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                          "${index + 1}",
+                          color = colors.ink2,
+                          fontSize = numSp.sp,
+                          fontWeight = FontWeight.Bold,
+                          maxLines = 1
+                        )
+                        if (showTimes) {
+                          Text(state.periods[index].from, color = colors.muted, fontSize = timeSp.sp, maxLines = 1)
+                          Text(state.periods[index].to, color = colors.muted, fontSize = timeSp.sp, maxLines = 1)
                         }
+                      }
                     }
                   }
                 }
@@ -395,9 +391,9 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     val blockHPx = (((heightPx * layoutZoom) - 8f).coerceAtLeast(24f))
                                     // 课程块文字按块高自适应：块越矮字越小，放不下时自动隐藏时间/教室行
                                     val fitScale = fonts.timetable.coerceIn(0.6f, 2f)
-                                    val titleDp = (blockHPx / 4.4f).coerceIn(9.5f, 15f) / fitScale
+                                    val titleDp = (blockHPx / 4.4f).coerceIn(9.5f, 22f) / fitScale
                                     val titleLineDp = (titleDp * 1.28f).coerceAtLeast(titleDp + 2f)
-                                    val timeDp = (blockHPx / 8.6f).coerceIn(7f, 10.5f) / fitScale
+                                    val timeDp = (blockHPx / 8.6f).coerceIn(7f, 15f) / fitScale
                                     val showTime = blockHPx >= 58f
                                     val showRoom = blockHPx >= 86f
                                     Column(
@@ -492,10 +488,10 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     val blockHPx = (((heightPx * layoutZoom) - 6f).coerceAtLeast(24f))
                                     // 任务块文字同样按块高自适应
                                     val fitScale = fonts.timetable.coerceIn(0.6f, 2f)
-                                    val taskLabelDp = (blockHPx / 6.8f).coerceIn(8.5f, 11.5f) / fitScale
-                                    val taskTitleDp = (blockHPx / 4.6f).coerceIn(9.5f, 14f) / fitScale
+                                    val taskLabelDp = (blockHPx / 6.8f).coerceIn(8.5f, 17f) / fitScale
+                                    val taskTitleDp = (blockHPx / 4.6f).coerceIn(9.5f, 20f) / fitScale
                                     val taskTitleLineDp = (taskTitleDp * 1.28f).coerceAtLeast(taskTitleDp + 2f)
-                                    val taskTimeDp = (blockHPx / 8.8f).coerceIn(7f, 10.5f) / fitScale
+                                    val taskTimeDp = (blockHPx / 8.8f).coerceIn(7f, 14f) / fitScale
                                     Column(
                                         Modifier
                                             .offset { IntOffset((colW * day + 3.dp).roundToPx(), ((top * layoutZoom).dp + 3.dp).roundToPx()) }

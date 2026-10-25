@@ -157,6 +157,17 @@ fun TaskEditDialog(
                     Text("—", color = colors.muted, fontSize = 12.sp, modifier = Modifier.padding(horizontal = 8.dp))
                     KTextField(to, { to = it }, label = "结束", placeholder = "15:00", modifier = Modifier.weight(1f))
                 }
+                val previewFrom = KexuCore.minutesOf(from)
+                val previewTo = KexuCore.minutesOf(to)
+                if (previewFrom >= 0 && previewTo > previewFrom && (previewTo - previewFrom) != minutes) {
+                    Text(
+                        "实际安排 ${previewTo - previewFrom} 分钟，保存后预计时长按 ${previewTo - previewFrom} 分钟计算",
+                        color = colors.warn,
+                        fontSize = 10.5.sp,
+                        lineHeight = 15.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
             if (error != null) {
                 Text(error!!, color = colors.danger, fontSize = 11.sp, modifier = Modifier.padding(top = 6.dp))
@@ -185,7 +196,7 @@ fun TaskEditDialog(
                                     task.copy(
                                         title = title.trim(),
                                         priority = priority,
-                                        estimatedMinutes = minutes,
+                                        estimatedMinutes = (toMin - fromMin),
                                         deadline = parsed,
                                         week = baseWeek,
                                         weekday = weekday,

@@ -1072,6 +1072,17 @@ fun AddTaskDialog(
                     KTextField(to, { to = it }, label = "结束", placeholder = "15:00", modifier = Modifier.weight(1f))
                 }
                 Text("时间格式 HH:mm", color = colors.muted, fontSize = 13.sp, modifier = Modifier.padding(top = 4.dp))
+                val previewFrom = KexuCore.minutesOf(from)
+                val previewTo = KexuCore.minutesOf(to)
+                if (previewFrom >= 0 && previewTo > previewFrom && (previewTo - previewFrom) != minutes) {
+                    Text(
+                        "实际安排 ${previewTo - previewFrom} 分钟，保存后预计时长按 ${previewTo - previewFrom} 分钟计算",
+                        color = colors.warn,
+                        fontSize = 13.sp,
+                        lineHeight = 19.sp,
+                        modifier = Modifier.padding(top = 4.dp)
+                    )
+                }
             }
 
             if (error != null) {
@@ -1101,7 +1112,7 @@ fun AddTaskDialog(
                                 val baseWeek = initialWeek ?: state.currentWeek()
                                 val targetWeek = if (initialWeek != null) baseWeek else if (weekday < todayWeek) baseWeek + 1 else baseWeek
                                 onSave(
-                                    title.trim(), courseId, priority, minutes, parsed, targetWeek, weekday,
+                                    title.trim(), courseId, priority, (toMin - fromMin), parsed, targetWeek, weekday,
                                     KexuCore.timeOf(fromMin), KexuCore.timeOf(toMin), repeatKind, parsedRepeatUntil
                                 )
                             }
