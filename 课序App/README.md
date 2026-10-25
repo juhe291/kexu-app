@@ -34,10 +34,17 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.3，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.4，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.2.4（课表字号/时间轴空隙再调）
+
+- 时间轴恢复「开始时间 + 结束时间」两行显示。
+- 时间轴三条信息（节次号 / 开始时间 / 结束时间）之间的空隙改为随缩放自动调整：放大时间距变大、缩小时变紧凑，按行高封顶不重叠。
+- 课程块 / 任务块文字进一步缩小：初始 100% 时课程块标题约 8dp、时间/教室约 6.5dp；块高不足时自动隐藏次要行。
+- 「课表文字」最小档从 90% 调整为 80%，方便继续调小。
+- JVM 测试 188 通过，lint 0/0。
 ## V1.2.3（课表文字再缩小 + 空隙随缩放自适应）
 
 - 课表文字进一步调小：初始 100% 时课程块标题约 9.8dp、时间/教室约 7.1dp；时间轴节次号约 9.8dp，且只显示**开始时间**（减少一行占高）。

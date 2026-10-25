@@ -926,7 +926,7 @@ private fun AlarmSpot(minutes: Int, exactGranted: Boolean, notifyEnabled: Boolea
 @Composable
 private fun AppearanceSettings(state: AppUiState, vm: KexuViewModel, onBack: () -> Unit) {
     val colors = LocalKexuColors.current
-    val fontOptions = listOf("90" to "小", "100" to "标准", "115" to "大", "130" to "特大")
+    val fontOptions = listOf("80" to "小", "100" to "标准", "115" to "大", "130" to "特大")
     SettingsPage("外观与显示", onBack) {
         SettingsHero(
             title = "阅读舒服，才愿意每天打开",

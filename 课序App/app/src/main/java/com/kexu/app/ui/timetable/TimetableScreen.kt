@@ -234,6 +234,11 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                     val showTimes = rowH >= 44f
                     val numSp = axisSp(rowH * 0.145f, rowH * 0.24f)
                     val timeSp = axisSp(rowH * 0.105f, rowH * 0.175f)
+                    // 时间轴「开始/结束时间」之间的空隙随缩放自动调整：
+                    // 行高越大 spacing/行距越大，行高越小越紧凑；字号也按行高封顶，避免重叠。
+                    val labelGapDp = (rowH * 0.035f).coerceIn(1f, 6f)
+                    val numLineSp = (rowH * 0.20f / axisFontScale).sp
+                    val timeLineSp = (rowH * 0.16f / axisFontScale).sp
                     Box(
                       Modifier
                         .fillMaxWidth()
@@ -249,17 +254,21 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                         },
                       contentAlignment = Alignment.Center
                     ) {
-                      Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                      Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(labelGapDp.dp)
+                      ) {
                         Text(
                           "${index + 1}",
                           color = colors.ink2,
                           fontSize = numSp,
+                          lineHeight = numLineSp,
                           fontWeight = FontWeight.Bold,
                           maxLines = 1
                         )
                         if (showTimes) {
-                          // 只显示开始时间，减少一行占高，行距更宽松
-                          Text(state.periods[index].from, color = colors.muted, fontSize = timeSp, maxLines = 1)
+                          Text(state.periods[index].from, color = colors.muted, fontSize = timeSp, lineHeight = timeLineSp, maxLines = 1)
+                          Text(state.periods[index].to, color = colors.muted, fontSize = timeSp, lineHeight = timeLineSp, maxLines = 1)
                         }
                       }
                     }
@@ -397,14 +406,14 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     // 但物理字号不超过块高上限，保证任何缩放下都不溢出。
                                     val ratio = fonts.timetable.coerceIn(0.6f, 2f)
                                     val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
-                                    val titleDp = minOf(blockHPx * 0.165f * ratio, blockHPx * 0.28f)
-                                    val titleLineDp = titleDp * 1.26f
-                                    val timeDp = minOf(blockHPx * 0.12f * ratio, blockHPx * 0.20f)
-                                    val showTime = blockHPx >= 50f
-                                    val showRoom = blockHPx >= 74f
+                                    val titleDp = minOf(blockHPx * 0.135f * ratio, blockHPx * 0.22f)
+                                    val titleLineDp = titleDp * 1.24f
+                                    val timeDp = minOf(blockHPx * 0.10f * ratio, blockHPx * 0.17f)
+                                    val showTime = blockHPx >= 48f
+                                    val showRoom = blockHPx >= 72f
                                     val timeRows = if (showRoom) 2 else if (showTime) 1 else 0
-                                    val padV = (blockHPx * 0.075f).coerceIn(3f, 6f)
-                                    val padH = (colW.value * 0.06f).coerceIn(4f, 7f)
+                                    val padV = (blockHPx * 0.06f).coerceIn(3f, 5f)
+                                    val padH = (colW.value * 0.05f).coerceIn(3f, 6f)
                                     val availTitleDp = blockHPx - padV * 2f - timeDp * 1.32f * timeRows
                                     val maxLines = (availTitleDp / titleLineDp).toInt().coerceIn(1, 3)
                                     Column(
@@ -501,10 +510,10 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     // 任务块文字同样按块高自适应，并遵守「课表文字」倍率
                                     val ratio = fonts.timetable.coerceIn(0.6f, 2f)
                                     val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
-                                    val taskLabelDp = minOf(blockHPx * 0.12f * ratio, blockHPx * 0.20f)
-                                    val taskTitleDp = minOf(blockHPx * 0.165f * ratio, blockHPx * 0.28f)
-                                    val taskTitleLineDp = taskTitleDp * 1.26f
-                                    val taskTimeDp = minOf(blockHPx * 0.115f * ratio, blockHPx * 0.18f)
+                                    val taskLabelDp = minOf(blockHPx * 0.10f * ratio, blockHPx * 0.17f)
+                                    val taskTitleDp = minOf(blockHPx * 0.135f * ratio, blockHPx * 0.22f)
+                                    val taskTitleLineDp = taskTitleDp * 1.24f
+                                    val taskTimeDp = minOf(blockHPx * 0.10f * ratio, blockHPx * 0.17f)
                                     Column(
                                         Modifier
                                             .offset { IntOffset((colW * day + 3.dp).roundToPx(), ((top * layoutZoom).dp + 3.dp).roundToPx()) }
