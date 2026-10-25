@@ -207,7 +207,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                   layout.rows.forEachIndexed { index, row ->
                     if (row.gapPx > 0f) {
                       val gapHDp = row.gapPx * layoutZoom
-                      val gapSp = axisSp(gapHDp * 0.28f, gapHDp * 0.42f)
+                      val gapSp = axisSp(gapHDp * 0.224f, gapHDp * 0.38f)
                       val gapTop = ((row.topPx - row.gapPx) * layoutZoom).dp
                       Box(
                         Modifier
@@ -235,8 +235,8 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                     val textRowH = row.heightPx * textZoom
                     val rowTop = (row.topPx * layoutZoom).dp
                     val showTimes = rowH >= 44f
-                    val numSp = axisSp(textRowH * 0.145f, textRowH * 0.24f)
-                    val timeSp = axisSp(textRowH * 0.105f, textRowH * 0.175f)
+                    val numSp = axisSp(textRowH * 0.116f, textRowH * 0.22f)
+                    val timeSp = axisSp(textRowH * 0.084f, textRowH * 0.16f)
                     // 时间轴「开始/结束时间」之间的空隙随缩放自动调整：
                     // 行高越大 spacing/行距越大，行高越小越紧凑；字号也按行高封顶，避免重叠。
                     val labelGapDp = (rowH * 0.035f).coerceIn(1f, 6f)
@@ -410,9 +410,9 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     val ratio = fonts.timetable.coerceIn(0.6f, 2f)
                                     val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
                                     val textBlockH = (heightPx * textZoom).coerceAtLeast(24f)
-                                    val titleDp = minOf(textBlockH * 0.135f * ratio, blockHPx * 0.22f)
+                                    val titleDp = minOf(textBlockH * 0.108f * ratio, blockHPx * 0.20f)
                                     val titleLineDp = titleDp * 1.24f
-                                    val timeDp = minOf(textBlockH * 0.10f * ratio, blockHPx * 0.17f)
+                                    val timeDp = minOf(textBlockH * 0.08f * ratio, blockHPx * 0.15f)
                                     val showTime = blockHPx >= 48f
                                     val showRoom = blockHPx >= 72f
                                     val timeRows = if (showRoom) 2 else if (showTime) 1 else 0
@@ -486,7 +486,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     ) {
                                         if (row.gapLabel.isNotEmpty() && gapHDp >= 18f) {
                                             Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                                                val gapTextDp = minOf(gapHDp * 0.28f * gapRatio, gapHDp * 0.40f)
+                                                val gapTextDp = minOf(gapHDp * 0.224f * gapRatio, gapHDp * 0.36f)
                                                 Text(
                                                     "${row.gapLabel} · ${row.gapMin} 分钟",
                                                     color = colors.muted,
@@ -515,10 +515,10 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     val ratio = fonts.timetable.coerceIn(0.6f, 2f)
                                     val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
                                     val taskTextBlockH = (heightPx * textZoom).coerceAtLeast(24f)
-                                    val taskLabelDp = minOf(taskTextBlockH * 0.10f * ratio, blockHPx * 0.17f)
-                                    val taskTitleDp = minOf(taskTextBlockH * 0.135f * ratio, blockHPx * 0.22f)
+                                    val taskLabelDp = minOf(taskTextBlockH * 0.08f * ratio, blockHPx * 0.15f)
+                                    val taskTitleDp = minOf(taskTextBlockH * 0.108f * ratio, blockHPx * 0.20f)
                                     val taskTitleLineDp = taskTitleDp * 1.24f
-                                    val taskTimeDp = minOf(taskTextBlockH * 0.10f * ratio, blockHPx * 0.17f)
+                                    val taskTimeDp = minOf(taskTextBlockH * 0.08f * ratio, blockHPx * 0.15f)
                                     Column(
                                         Modifier
                                             .offset { IntOffset((colW * day + 3.dp).roundToPx(), ((top * layoutZoom).dp + 3.dp).roundToPx()) }

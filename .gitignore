@@ -48,3 +48,9 @@ _private/
 .DS_Store
 Thumbs.db
 .vscode/
+
+# 本机构建缓存（沙箱环境的 Gradle home / 临时目录）
+.gradle-home/
+.tmp/
+.android-home/
+.m2/
