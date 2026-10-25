@@ -197,15 +197,20 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                   // 时间轴改为「按滚动位置绝对定位」：每个节次/午休标签直接用与右侧网格相同的
                   // vScroll 计算纵坐标，不再依赖超高 Column 的 translationY（那样会被父级裁剪，
                   // 出现午休以下空白、甚至上午标签整段不显示的问题）。
-                  val axisFontScale = (density.fontScale * fonts.timetable / fonts.body).coerceAtLeast(0.6f)
+                  // 字号：基准随行高自适应，再乘「课表文字」设置倍率；过大时按行高封顶，避免重叠。
+                  val ttRatio = fonts.timetable.coerceIn(0.6f, 2f)
+                  val axisFontScale = (density.fontScale * ttRatio / fonts.body).coerceAtLeast(0.5f)
+                  fun axisSp(baseDp: Float, maxDp: Float): androidx.compose.ui.unit.TextUnit =
+                      (minOf(baseDp * ttRatio, maxDp) / axisFontScale).sp
                   layout.rows.forEachIndexed { index, row ->
                     if (row.gapPx > 0f) {
-                      val gapSp = (row.gapPx * layoutZoom / 3.4f).coerceIn(7f, 13f) / axisFontScale
+                      val gapHDp = row.gapPx * layoutZoom
+                      val gapSp = axisSp(gapHDp * 0.32f, gapHDp * 0.46f)
                       val gapTop = ((row.topPx - row.gapPx) * layoutZoom).dp
                       Box(
                         Modifier
                           .fillMaxWidth()
-                          .height((row.gapPx * layoutZoom).dp)
+                          .height(gapHDp.dp)
                           .offset { IntOffset(0, (gapTop - vScroll.value.toDp()).roundToPx()) }
                           .background(colors.surface2.copy(alpha = 0.55f)),
                         contentAlignment = Alignment.Center
@@ -214,7 +219,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                           Text(
                             row.gapLabel,
                             color = colors.muted,
-                            fontSize = gapSp.sp,
+                            fontSize = gapSp,
                             maxLines = 1,
                             modifier = Modifier
                               .border(1.dp, colors.gridLine, RoundedCornerShape(6.dp))
@@ -226,10 +231,9 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                     }
                     val rowH = row.heightPx * layoutZoom
                     val rowTop = (row.topPx * layoutZoom).dp
-                    val showTimes = rowH >= 52f
-                    // 字号跟随缩放与行高：放大时变大、缩小时变小，太矮时自动只显示节次号
-                    val numSp = (rowH / 5.6f).coerceIn(9f, 22f) / axisFontScale
-                    val timeSp = (rowH / 8.6f).coerceIn(7f, 15f) / axisFontScale
+                    val showTimes = rowH >= 46f
+                    val numSp = axisSp(rowH * 0.155f, rowH * 0.26f)
+                    val timeSp = axisSp(rowH * 0.115f, rowH * 0.19f)
                     Box(
                       Modifier
                         .fillMaxWidth()
@@ -249,13 +253,13 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                         Text(
                           "${index + 1}",
                           color = colors.ink2,
-                          fontSize = numSp.sp,
+                          fontSize = numSp,
                           fontWeight = FontWeight.Bold,
                           maxLines = 1
                         )
                         if (showTimes) {
-                          Text(state.periods[index].from, color = colors.muted, fontSize = timeSp.sp, maxLines = 1)
-                          Text(state.periods[index].to, color = colors.muted, fontSize = timeSp.sp, maxLines = 1)
+                          Text(state.periods[index].from, color = colors.muted, fontSize = timeSp, maxLines = 1)
+                          Text(state.periods[index].to, color = colors.muted, fontSize = timeSp, maxLines = 1)
                         }
                       }
                     }
@@ -389,13 +393,18 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                             other.startPeriod <= endPeriod && startPeriod <= other.endPeriod
                                     }
                                     val blockHPx = (((heightPx * layoutZoom) - 8f).coerceAtLeast(24f))
-                                    // 课程块文字按块高自适应：块越矮字越小，放不下时自动隐藏时间/教室行
-                                    val fitScale = fonts.timetable.coerceIn(0.6f, 2f)
-                                    val titleDp = (blockHPx / 4.4f).coerceIn(9.5f, 22f) / fitScale
-                                    val titleLineDp = (titleDp * 1.28f).coerceAtLeast(titleDp + 2f)
-                                    val timeDp = (blockHPx / 8.6f).coerceIn(7f, 15f) / fitScale
-                                    val showTime = blockHPx >= 58f
-                                    val showRoom = blockHPx >= 86f
+                                    // 课程块文字按块高自适应：先取块高比例做基准，再乘「课表文字」设置倍率，
+                                    // 但物理字号不超过块高上限，保证任何缩放下都不溢出。
+                                    val ratio = fonts.timetable.coerceIn(0.6f, 2f)
+                                    val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
+                                    val titleDp = minOf(blockHPx * 0.185f * ratio, blockHPx * 0.30f)
+                                    val titleLineDp = titleDp * 1.28f
+                                    val timeDp = minOf(blockHPx * 0.135f * ratio, blockHPx * 0.22f)
+                                    val showTime = blockHPx >= 52f
+                                    val showRoom = blockHPx >= 78f
+                                    val timeRows = if (showRoom) 2 else if (showTime) 1 else 0
+                                    val availTitleDp = blockHPx - 10f - timeDp * 1.35f * timeRows
+                                    val maxLines = (availTitleDp / titleLineDp).toInt().coerceIn(1, 3)
                                     Column(
                                         Modifier
                                             .offset { IntOffset((colW * day + 3.dp).roundToPx(), ((topPx * layoutZoom).dp + 4.dp).roundToPx()) }
@@ -416,14 +425,10 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                                 else -> course.name
                                             }) + if (hasConflict) " ⚠" else "",
                                             color = if (cancelled) colors.muted else tone.ink,
-                                            fontSize = titleDp.sp,
-                                            lineHeight = titleLineDp.sp,
+                                            fontSize = (titleDp / effScale).sp,
+                                            lineHeight = (titleLineDp / effScale).sp,
                                             fontWeight = FontWeight.ExtraBold,
-                                            maxLines = when {
-                                                blockHPx < 44f -> 1
-                                                blockHPx < 78f -> 2
-                                                else -> 3
-                                            },
+                                            maxLines = maxLines,
                                             overflow = TextOverflow.Ellipsis
                                         )
                                         if (showTime && !cancelled) {
@@ -432,7 +437,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                             Text(
                                                 "$from–$to",
                                                 color = tone.ink,
-                                                fontSize = timeDp.sp,
+                                                fontSize = (timeDp / effScale).sp,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )
@@ -440,7 +445,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                                 Text(
                                                     occurrence.room,
                                                     color = tone.ink,
-                                                    fontSize = timeDp.sp,
+                                                    fontSize = (timeDp / effScale).sp,
                                                     maxLines = 1,
                                                     overflow = TextOverflow.Ellipsis
                                                 )
@@ -486,12 +491,13 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                     val heightPx = (bottom - top).coerceAtLeast(24f)
                                     val tone = toneOf(state.courseColor(task.courseId), colors.dark)
                                     val blockHPx = (((heightPx * layoutZoom) - 6f).coerceAtLeast(24f))
-                                    // 任务块文字同样按块高自适应
-                                    val fitScale = fonts.timetable.coerceIn(0.6f, 2f)
-                                    val taskLabelDp = (blockHPx / 6.8f).coerceIn(8.5f, 17f) / fitScale
-                                    val taskTitleDp = (blockHPx / 4.6f).coerceIn(9.5f, 20f) / fitScale
-                                    val taskTitleLineDp = (taskTitleDp * 1.28f).coerceAtLeast(taskTitleDp + 2f)
-                                    val taskTimeDp = (blockHPx / 8.8f).coerceIn(7f, 14f) / fitScale
+                                    // 任务块文字同样按块高自适应，并遵守「课表文字」倍率
+                                    val ratio = fonts.timetable.coerceIn(0.6f, 2f)
+                                    val effScale = (density.fontScale * ratio / fonts.body).coerceAtLeast(0.5f)
+                                    val taskLabelDp = minOf(blockHPx * 0.135f * ratio, blockHPx * 0.22f)
+                                    val taskTitleDp = minOf(blockHPx * 0.185f * ratio, blockHPx * 0.30f)
+                                    val taskTitleLineDp = taskTitleDp * 1.28f
+                                    val taskTimeDp = minOf(blockHPx * 0.125f * ratio, blockHPx * 0.20f)
                                     Column(
                                         Modifier
                                             .offset { IntOffset((colW * day + 3.dp).roundToPx(), ((top * layoutZoom).dp + 3.dp).roundToPx()) }
@@ -513,21 +519,21 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                                             .clickable { taskDetail = task }
                                             .padding(horizontal = 7.dp, vertical = 5.dp)
                                     ) {
-                                        Text("任务", color = tone.base, fontSize = taskLabelDp.sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
+                                        Text("任务", color = tone.base, fontSize = (taskLabelDp / effScale).sp, fontWeight = FontWeight.ExtraBold, maxLines = 1)
                                         Text(
                                             task.title,
                                             color = colors.ink,
-                                            fontSize = taskTitleDp.sp,
-                                            lineHeight = taskTitleLineDp.sp,
+                                            fontSize = (taskTitleDp / effScale).sp,
+                                            lineHeight = (taskTitleLineDp / effScale).sp,
                                             fontWeight = FontWeight.Bold,
-                                            maxLines = if (blockHPx < 56f) 1 else 2,
+                                            maxLines = if (blockHPx < 52f) 1 else 2,
                                             overflow = TextOverflow.Ellipsis
                                         )
-                                        if (blockHPx >= 62f) {
+                                        if (blockHPx >= 58f) {
                                             Text(
                                                 "${task.from}–${task.to}",
                                                 color = colors.muted,
-                                                fontSize = taskTimeDp.sp,
+                                                fontSize = (taskTimeDp / effScale).sp,
                                                 maxLines = 1,
                                                 overflow = TextOverflow.Ellipsis
                                             )

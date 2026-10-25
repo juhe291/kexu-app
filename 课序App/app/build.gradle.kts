@@ -13,8 +13,8 @@ android {
         applicationId = "com.kexu.app"
         minSdk = 26
         targetSdk = 35
-        versionCode = 71
-        versionName = "1.2.1"
+        versionCode = 72
+        versionName = "1.2.2"
         vectorDrawables { useSupportLibrary = true }
     }
 

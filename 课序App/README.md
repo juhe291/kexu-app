@@ -34,10 +34,17 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.1，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.2，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.2.2（课表字号回归舒适 + 设置生效）
+
+- 课表字号基准整体调小：初始（100% 缩放、标准字号）下课程块标题约 11dp、时间/教室约 8dp，时间轴节次号约 10.5dp、时间约 7.8dp，不再偏大。
+- 修复「课表文字调到最小也还是很大」：V1.2.1 的自适应字号会抵消「课表文字」倍率；现在小 / 标准 / 大 / 特大真正作用于时间轴、课程块、任务块，同时仍按行高/块高封顶，放大到 130%/150% 也不会重叠或溢出。
+- 双指放大时文字继续跟着变大、缩小时变小；块太矮时自动隐藏时间/教室行，只保留标题。
+- 任务「预计时长」与「自己安排时间」冲突：手排时间后保存时预计时长自动取实际时段长度，弹窗内提示「实际安排 N 分钟」。
+- API/数据/其他页面未改动；JVM 测试 188 通过，lint 0/0。
 ## V1.2.1（课表修复）
 
 - 修复课表左侧时间轴在午休横带以下出现空白的问题：时间轴内容列之前被父级可见高度截断，滚动到第 7、8 节及以后时不再绘制；现用 `requiredHeight` 撑满整个课表高度，所有节次时间都能正常显示。
