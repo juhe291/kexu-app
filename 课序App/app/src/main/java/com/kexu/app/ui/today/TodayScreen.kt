@@ -63,12 +63,14 @@ import com.kexu.app.ui.components.CollapsibleModule
 import com.kexu.app.ui.components.EmptyHint
 import com.kexu.app.ui.components.KexuDialog
 import com.kexu.app.ui.components.captionSize
+import com.kexu.app.ui.components.glassSurface
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.courses.CourseEditDialog
 import com.kexu.app.ui.goals.AddGoalDialog
 import com.kexu.app.ui.tasks.AddTaskDialog
 import com.kexu.app.ui.tasks.TaskEditDialog
 import com.kexu.app.ui.theme.LocalFontScales
+import com.kexu.app.ui.theme.LocalDisplayOptions
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.toneOf
 import kotlinx.coroutines.delay
@@ -105,6 +107,16 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
         displayDate == today.plusDays(1) -> "明天"
         displayDate == today.plusDays(2) -> "后天"
         else -> KexuCore.WEEKDAY_CN[weekday]
+    }
+    val dayEyebrow = when {
+        displayDate == today -> "TODAY"
+        displayDate == today.plusDays(1) -> "TOMORROW"
+        else -> "UPCOMING"
+    }
+    val glanceEyebrow = when (dayEyebrow) {
+        "TODAY" -> "TODAY AT A GLANCE"
+        "TOMORROW" -> "TOMORROW AT A GLANCE"
+        else -> "UPCOMING AT A GLANCE"
     }
     val semesterLabel = semesterCaption(state.semester.name, displayDate, week)
 
@@ -151,7 +163,8 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
             DateStand(
                 dateLine = "${displayDate.monthValue}月${displayDate.dayOfMonth}日　星期${WEEKDAY_FULL[weekday]}",
                 title = dayTitle,
-                semesterLabel = semesterLabel
+                semesterLabel = semesterLabel,
+                eyebrow = dayEyebrow
             )
         }
         item {
@@ -175,11 +188,14 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
             Spacer(Modifier.height(21.dp))
         }
         item {
-            DayPulse(
-                courses = todayCourses.size,
-                tasks = todayTasks.count { !it.done },
-                hours = plannedHours
-            )
+            Column(Modifier.fillMaxWidth()) {
+                EnglishLabel(glanceEyebrow, Modifier.padding(bottom = 3.dp))
+                DayPulse(
+                    courses = todayCourses.size,
+                    tasks = todayTasks.count { !it.done },
+                    hours = plannedHours
+                )
+            }
             Spacer(Modifier.height(7.dp))
         }
         item {
@@ -222,14 +238,7 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
                         }
                         Spacer(Modifier.height(12.dp))
                         Text("今天还没有安排", color = colors.ink, fontSize = 19.sp, fontWeight = FontWeight.ExtraBold)
-                        Spacer(Modifier.height(6.dp))
-                        Text(
-                            "添加任务后，这里会按时间排出一天的节奏",
-                            color = colors.muted,
-                            fontSize = captionSize(),
-                            textAlign = androidx.compose.ui.text.style.TextAlign.Center
-                        )
-                        Spacer(Modifier.height(16.dp))
+                        Spacer(Modifier.height(18.dp))
                         PrimaryButton("＋ 添加任务", modifier = Modifier.width(190.dp)) { showAddTask = true }
                     }
                 } else {
@@ -266,8 +275,8 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
                 if (remaining > 0) {
                     Text(
                         "还有 $remaining 项截止",
-                        color = colors.muted,
-                        fontSize = captionSize(),
+                        color = colors.muted.copy(alpha = 0.8f),
+                        fontSize = captionSize(12f),
                         modifier = Modifier.padding(top = 10.dp)
                     )
                 }
@@ -321,7 +330,7 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
                                 overflow = TextOverflow.Ellipsis
                             )
                             Spacer(Modifier.height(5.dp))
-                            Text(inboxMeta(task), color = colors.body, fontSize = captionSize(), lineHeight = 20.sp)
+                            Text(inboxMeta(task), color = colors.body, fontSize = captionSize(12f), lineHeight = 18.sp)
                         }
                         Spacer(Modifier.width(12.dp))
                         Text(
@@ -371,6 +380,7 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
                 onToggle = { toggleModule("review") },
                 meta = "第 $reviewWeek 周"
             ) {
+                EnglishLabel("WEEKLY REVIEW", Modifier.padding(bottom = 5.dp))
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     PulseNumber("$courseCount", "节课", colors.accent)
                     PulseNumber("$finished/$total", "项任务", colors.warn)
@@ -380,9 +390,9 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
                 ProgressBar(rate.coerceIn(0f, 1f), colors.accent2)
                 Spacer(Modifier.height(10.dp))
                 Text(
-                    "本周任务完成率 ${(rate * 100).toInt()}% · 长期目标 ${state.goals.size} 个",
-                    color = colors.muted,
-                    fontSize = captionSize()
+                    "完成率 ${(rate * 100).toInt()}% · 长期目标 ${state.goals.size} 个",
+                    color = colors.muted.copy(alpha = 0.75f),
+                    fontSize = captionSize(12f)
                 )
             }
         }
@@ -408,13 +418,13 @@ fun TodayScreen(state: AppUiState, vm: KexuViewModel, onGoPlanning: () -> Unit) 
                         "${KexuCore.WEEKDAY_CN.getOrElse(occurrence.weekday) { "?" }} $from — $to · ${occurrence.room}" +
                             if (occurrence.moved) "（本次调课）" else "",
                         color = tone.ink,
-                        fontSize = captionSize()
+                        fontSize = captionSize(13f)
                     )
                 }
                 Spacer(Modifier.height(12.dp))
-                Text("教师：${course.teacher}", color = colors.ink2, fontSize = captionSize())
+                Text("教师：${course.teacher}", color = colors.ink2, fontSize = captionSize(13f))
                 Spacer(Modifier.height(4.dp))
-                Text("地点：${occurrence.room}", color = colors.ink2, fontSize = captionSize())
+                Text("地点：${occurrence.room}", color = colors.ink2, fontSize = captionSize(13f))
                 Spacer(Modifier.height(12.dp))
                 DialogAction("编辑课程", accent = true) {
                     detailCourse = null
@@ -500,11 +510,13 @@ private sealed interface AgendaItem {
 
 /** V11 date-stand：大标题 + 强调色句点 + 右侧学期周次。 */
 @Composable
-private fun DateStand(dateLine: String, title: String, semesterLabel: String) {
+private fun DateStand(dateLine: String, title: String, semesterLabel: String, eyebrow: String) {
     val colors = LocalKexuColors.current
     val fonts = LocalFontScales.current
     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
         Column(Modifier.weight(1f)) {
+            EnglishLabel(eyebrow)
+            Spacer(Modifier.height(3.dp))
             Text(dateLine, color = colors.muted, fontSize = 16.sp, fontWeight = FontWeight.SemiBold)
             Spacer(Modifier.height(7.dp))
             Text(
@@ -524,12 +536,28 @@ private fun DateStand(dateLine: String, title: String, semesterLabel: String) {
         Text(
             semesterLabel,
             color = colors.accent,
-            fontSize = captionSize(),
+            fontSize = captionSize(12f),
             fontWeight = FontWeight.ExtraBold,
             modifier = Modifier.padding(bottom = 8.dp)
         )
     }
     Spacer(Modifier.height(21.dp))
+}
+
+/** 小号英文大写装饰：11sp、拉开字距、muted 55% 透明度，只做层级点缀，不抢主标题。 */
+@Composable
+private fun EnglishLabel(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        color = LocalKexuColors.current.muted.copy(alpha = 0.55f),
+        fontSize = captionSize(9f),
+        lineHeight = captionSize(10f),
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.1.sp,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
 }
 
 /** V11 hero：下一节课 / 自由安排。 */
@@ -538,11 +566,14 @@ private fun HeroCard(next: NextCourse?, onClick: () -> Unit) {
     val colors = LocalKexuColors.current
     val tone = if (next != null) toneOf(next.course.colorHex, colors.dark) else toneOf("#475569", colors.dark)
     val shape = RoundedCornerShape(24.dp)
+    val display = LocalDisplayOptions.current
     Box(
         Modifier
             .fillMaxWidth()
-            .clip(shape)
-            .background(tone.bg)
+            .then(
+                if (display.glassEnabled) Modifier.glassSurface(tone.bg, shape, display.glassDistortion)
+                else Modifier.clip(shape).background(tone.bg)
+            )
             .clickable(enabled = next != null, onClick = onClick)
     ) {
         Box(
@@ -558,11 +589,11 @@ private fun HeroCard(next: NextCourse?, onClick: () -> Unit) {
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("●　下一节课", color = tone.ink.copy(alpha = 0.85f), fontSize = captionSize(), fontWeight = FontWeight.Bold)
+                Text("●　下一节课", color = tone.ink.copy(alpha = 0.85f), fontSize = captionSize(12f), fontWeight = FontWeight.Bold)
                 Text(
                     if (next != null) "${KexuCore.timeOf(next.startMin)} 开始" else "今天已无课",
                     color = tone.ink.copy(alpha = 0.85f),
-                    fontSize = captionSize(),
+                    fontSize = captionSize(12f),
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -595,7 +626,7 @@ private fun HeroCard(next: NextCourse?, onClick: () -> Unit) {
                         Text(
                             next.room ?: next.meeting.room ?: next.course.room,
                             color = tone.ink,
-                            fontSize = captionSize(),
+                            fontSize = captionSize(12f),
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
@@ -604,13 +635,13 @@ private fun HeroCard(next: NextCourse?, onClick: () -> Unit) {
                         Text(
                             "第 ${next.startPeriod}–${next.endPeriod} 节" + if (next.moved) " · 调课" else "",
                             color = tone.ink.copy(alpha = 0.9f),
-                            fontSize = captionSize()
+                            fontSize = captionSize(12f)
                         )
                     }
                 }
             } else {
                 Spacer(Modifier.height(15.dp))
-                Text("今天没有课程安排", color = tone.ink.copy(alpha = 0.72f), fontSize = captionSize())
+                Text("今天没有课程安排", color = tone.ink.copy(alpha = 0.72f), fontSize = captionSize(12f))
             }
         }
     }
@@ -642,7 +673,7 @@ private fun PulseNumber(number: String, label: String, numberColor: Color) {
             lineHeight = 26.sp
         )
         Spacer(Modifier.width(5.dp))
-        Text(label, color = colors.muted, fontSize = captionSize(), modifier = Modifier.padding(bottom = 2.dp))
+        Text(label, color = colors.muted.copy(alpha = 0.75f), fontSize = captionSize(12f), modifier = Modifier.padding(bottom = 2.dp))
     }
 }
 
@@ -746,8 +777,8 @@ private fun AgendaCourseRow(occurrence: CourseOccurrence, state: AppUiState, onC
             Text(
                 subtitle,
                 color = colors.body,
-                fontSize = captionSize(),
-                lineHeight = 20.sp,
+                fontSize = captionSize(12f),
+                lineHeight = 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -795,8 +826,8 @@ private fun AgendaTaskRow(
             Text(
                 agendaTaskSubtitle(task, state),
                 color = colors.body,
-                fontSize = captionSize(),
-                lineHeight = 20.sp,
+                fontSize = captionSize(12f),
+                lineHeight = 18.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -826,9 +857,9 @@ private fun AgendaTaskRow(
 private fun TimeColumn(from: String, to: String) {
     val colors = LocalKexuColors.current
     Column(Modifier.width(50.dp)) {
-        Text(from, color = colors.accent, fontSize = captionSize(), fontWeight = FontWeight.ExtraBold)
+        Text(from, color = colors.accent, fontSize = captionSize(12f), fontWeight = FontWeight.ExtraBold)
         Spacer(Modifier.height(9.dp))
-        Text(to, color = colors.muted, fontSize = captionSize())
+        Text(to, color = colors.muted, fontSize = captionSize(12f))
     }
 }
 
@@ -878,8 +909,8 @@ private fun DueFeatureRow(task: Task, date: LocalDate, days: Int) {
             Text(
                 "${KexuCore.WEEKDAY_CN[KexuCore.weekdayIndex(date)]}截止 · ${deadlineRemainText(days)}",
                 color = colors.muted,
-                fontSize = captionSize(),
-                lineHeight = 20.sp
+                fontSize = captionSize(12f),
+                lineHeight = 18.sp
             )
         }
     }
@@ -916,8 +947,8 @@ private fun GoalRow(goal: Goal) {
             Text(
                 "第 ${goal.currentWeek} 周 · 本周 ${goal.doneHours}/${goal.weeklyHours} 小时",
                 color = colors.body,
-                fontSize = captionSize(),
-                lineHeight = 20.sp
+                fontSize = captionSize(12f),
+                lineHeight = 18.sp
             )
             Spacer(Modifier.height(9.dp))
             ProgressBar(goal.progress / 100f, colors.ok)
@@ -956,7 +987,7 @@ private fun DoneTaskRow(task: Task, state: AppUiState, onToggle: () -> Unit) {
                 overflow = TextOverflow.Ellipsis
             )
             Spacer(Modifier.height(3.dp))
-            Text(doneTaskMeta(task, state), color = colors.muted, fontSize = captionSize())
+            Text(doneTaskMeta(task, state), color = colors.muted, fontSize = captionSize(12f))
         }
     }
 }

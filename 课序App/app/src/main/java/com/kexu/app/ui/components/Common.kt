@@ -49,6 +49,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -61,6 +67,8 @@ import androidx.compose.ui.unit.sp
 import com.kexu.app.domain.KexuCore
 import com.kexu.app.ui.theme.CourseTone
 import com.kexu.app.ui.theme.LocalFontScales
+import com.kexu.app.ui.theme.KexuColors
+import com.kexu.app.ui.theme.LocalDisplayOptions
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.hexColor
 import com.kexu.app.ui.theme.toneOf
@@ -568,11 +576,15 @@ fun SettingsHero(
     titleColor: Color = LocalKexuColors.current.ink,
     bodyColor: Color = LocalKexuColors.current.body
 ) {
+    val glass = LocalDisplayOptions.current.glassEnabled
+    val shape = RoundedCornerShape(19.dp)
     Column(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(19.dp))
-            .background(container)
+            .then(
+                if (glass) Modifier.glassSurface(container, shape, LocalDisplayOptions.current.glassDistortion)
+                else Modifier.clip(shape).background(container)
+            )
             .padding(20.dp)
     ) {
         Text(title, color = titleColor, fontSize = 23.sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp)
@@ -685,3 +697,83 @@ fun captionSize(base: Float = 14f): androidx.compose.ui.unit.TextUnit {
     val fonts = LocalFontScales.current
     return (base * fonts.caption / fonts.body).sp
 }
+
+/** 英文小装饰：小号大写、字距收紧、颜色很浅，尽量不占上下空间。 */
+@Composable
+fun EnglishCaption(text: String, modifier: Modifier = Modifier) {
+    val colors = LocalKexuColors.current
+    Text(
+        text.uppercase(),
+        color = colors.muted.copy(alpha = 0.55f),
+        fontSize = 9.sp,
+        lineHeight = 10.sp,
+        fontWeight = FontWeight.Bold,
+        letterSpacing = 1.1.sp,
+        maxLines = 1,
+        modifier = modifier
+    )
+}
+
+/**
+ * 玻璃拟态卡：半透明彩色底 + 顶部高光；distortion 开启时加边缘折射（高光/暗边/内圈细边）。
+ * 纯 Compose 绘制，不依赖系统模糊，低版本也有明显的玻璃边缘感。
+ */
+fun Modifier.glassSurface(
+    contentColor: Color,
+    shape: RoundedCornerShape,
+    distortion: Boolean = true
+): Modifier = this
+    .clip(shape)
+    .drawWithContent {
+        val corner = CornerRadius(20.dp.toPx())
+        // 更透的玻璃底
+        drawRoundRect(color = contentColor.copy(alpha = 0.38f), cornerRadius = corner)
+        drawRoundRect(
+            brush = Brush.verticalGradient(
+                listOf(
+                    Color.White.copy(alpha = 0.30f),
+                    Color.White.copy(alpha = 0.04f),
+                    Color.Transparent
+                )
+            ),
+            cornerRadius = corner
+        )
+        drawContent()
+        if (distortion) {
+            val edge = (size.minDimension * 0.012f).coerceIn(1.5f, 3.5f)
+            // 左上高光 → 右下反光（玻璃边缘折射）
+            drawRoundRect(
+                brush = Brush.linearGradient(
+                    0f to Color.White.copy(alpha = 0.9f),
+                    0.35f to Color.White.copy(alpha = 0.14f),
+                    0.7f to Color.Transparent,
+                    1f to Color.White.copy(alpha = 0.35f),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, size.height)
+                ),
+                style = Stroke(width = edge),
+                cornerRadius = corner
+            )
+            // 右下暗边 → 左上反光（厚度略大，像厚玻璃）
+            drawRoundRect(
+                brush = Brush.linearGradient(
+                    0f to Color.Black.copy(alpha = 0.12f),
+                    0.4f to Color.Transparent,
+                    1f to Color.White.copy(alpha = 0.28f),
+                    start = Offset(size.width, size.height),
+                    end = Offset(0f, 0f)
+                ),
+                style = Stroke(width = edge * 1.9f),
+                cornerRadius = corner
+            )
+            // 内圈折射细边
+            val inset = 2.dp.toPx()
+            drawRoundRect(
+                color = Color.White.copy(alpha = 0.30f),
+                topLeft = Offset(inset, inset),
+                size = Size(size.width - inset * 2, size.height - inset * 2),
+                style = Stroke(width = 1.dp.toPx()),
+                cornerRadius = CornerRadius(18.dp.toPx())
+            )
+        }
+    }

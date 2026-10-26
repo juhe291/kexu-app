@@ -34,10 +34,29 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.2.6，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.3.1，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.3.1（英文装饰收紧 + 玻璃质感增强 + 玻璃边缘畸变）
+
+- 英文小装饰缩小收紧：字号 9sp、字距 1.1sp，去掉额外上下 Spacer（今天日期标题上/统计前/复盘内、规划 hero 上、设置/使用说明/课表标题上），不再占大块高度。
+- 玻璃质感更明显、更透：
+  - 玻璃底透明度降到约 38%，叠加由浅到无的白色高光渐变；
+  - 应用范围扩大：设置首页「课程与学期」特色卡、设置页彩色说明卡、今天页下一节课 hero、待办页优先处理卡；
+  - 「玻璃质感」开关保持在外观与显示里。
+- 新增「玻璃边缘畸变」开关（外观与显示 → 透明度与质感）：开启时卡片边缘绘制折射高光、暗边与内圈细边，模拟厚玻璃边缘的折射感；关闭则只保留半透明磨砂底。
+- 其它：检查更新、透明度、英文装饰等上一版功能保留。
+- JVM 测试 203 个全部通过，lint 0/0；本版按约定只在本地构建，未推送 GitHub。
+## V1.3.0（英文装饰 / 透明度 / 玻璃质感 / 检查更新）
+
+- **英文小装饰**：今天（TODAY / TOMORROW / UPCOMING、TODAY AT A GLANCE、WEEKLY REVIEW）、待办（TASKS、SMART SCHEDULING、LONG-TERM GOALS）、规划（PLAN、WEEKLY RHYTHM、SCHEDULING）、课表（TIMETABLE · WEEK N）、设置（SETTINGS · PREFERENCES）、使用说明（USER GUIDE · OFFLINE）等位置加入浅色小号英文标签。
+- **辅助文字更小更浅**：今天/待办/规划的说明与 meta 降到 12–13sp，删除多段冗余解释小字；主题 muted 色整体调浅。
+- **透明度设置**：外观与显示新增「说明文字透明度」（不透明 / 浅一点 / 更浅）与「色块透明度」（卡片底色、浅色块与分隔线），实时生效。
+- **玻璃质感**：外观新增「玻璃质感」开关，大卡片（设置页彩色说明卡等）使用半透明磨砂底 + 高光描边的玻璃拟态效果。
+- **检查更新**：设置页底部新增「检查更新」，读取 GitHub Releases 的最新版本，比较本地版本；有新版本时展示更新说明、跳转下载最新 APK。新增 INTERNET 权限，仅检查更新时联网，不上传任何数据。
+- JVM 单测 **203 个全部通过**（含检查更新 15 个用例）；lint 0/0。
+- APK：`课序-v1.3.0-release.apk`（versionCode 77 / 1.3.0）；**按你的要求，本版暂未推送 GitHub**。
 ## V1.2.6（辅助说明字号生效）
 
 - 修复「外观与显示 → 字体大小 → 辅助说明」调了没反应：新增统一的辅助说明字号（`captionSize`），受该倍率控制。

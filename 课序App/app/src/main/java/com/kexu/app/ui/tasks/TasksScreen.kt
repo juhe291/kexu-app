@@ -58,11 +58,13 @@ import com.kexu.app.ui.components.KSegmented
 import com.kexu.app.ui.components.KTextField
 import com.kexu.app.ui.components.KexuDialog
 import com.kexu.app.ui.components.captionSize
+import com.kexu.app.ui.components.glassSurface
 import com.kexu.app.ui.components.MoreActionsDialog
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.components.RowAction
 import com.kexu.app.ui.goals.AddGoalDialog
 import com.kexu.app.ui.theme.LocalFontScales
+import com.kexu.app.ui.theme.LocalDisplayOptions
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.toneOf
 import java.time.LocalDate
@@ -70,6 +72,22 @@ import java.time.LocalDate
 private enum class TaskFilter(val label: String) { ALL("全部"), SCHEDULED("已安排"), INBOX("待安排"), DONE("已完成") }
 
 private enum class TaskSort(val label: String) { DEFAULT("默认"), DEADLINE("按截止"), PRIORITY("按优先级") }
+
+/** 小号英文大写装饰：11sp、拉开字距、muted 55% 透明度，只做层级点缀，不抢主标题。 */
+@Composable
+private fun EnglishLabel(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        color = LocalKexuColors.current.muted.copy(alpha = 0.55f),
+        fontSize = captionSize(9f),
+        lineHeight = captionSize(10f),
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.1.sp,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+}
 
 /**
  * 待办页（用户最新截图版）：眉标 + 大号「待办」与未完成计数 + 全宽下划线筛选，
@@ -305,18 +323,21 @@ private fun TaskPageHeader(
     val colors = LocalKexuColors.current
     Column(Modifier.fillMaxWidth()) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                "所有任务",
-                color = colors.muted,
-                fontSize = captionSize(),
-                fontWeight = FontWeight.SemiBold,
-                maxLines = 1,
-                modifier = Modifier.weight(1f)
-            )
+            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    "所有任务",
+                    color = colors.muted,
+                    fontSize = captionSize(13f),
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1
+                )
+                Spacer(Modifier.width(9.dp))
+                EnglishLabel("TASKS")
+            }
             Text(
                 "排序：${sort.label}",
                 color = colors.accent,
-                fontSize = captionSize(),
+                fontSize = captionSize(13f),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 modifier = Modifier
@@ -348,7 +369,7 @@ private fun TaskPageHeader(
             Text(
                 "项任务",
                 color = colors.muted,
-                fontSize = captionSize(),
+                fontSize = captionSize(12f),
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 6.dp)
             )
@@ -421,9 +442,9 @@ private fun TaskEmptyState(filter: TaskFilter, onAdd: () -> Unit) {
         Spacer(Modifier.height(8.dp))
         Text(
             "记录要做的事，时间可以稍后安排",
-            color = colors.muted,
-            fontSize = 15.sp,
-            lineHeight = 22.sp,
+            color = colors.muted.copy(alpha = 0.8f),
+            fontSize = captionSize(13f),
+            lineHeight = 20.sp,
             textAlign = TextAlign.Center
         )
         Spacer(Modifier.height(24.dp))
@@ -499,7 +520,11 @@ private fun PlanningEntry(onGoPlanning: () -> Unit) {
             .clickable(onClick = onGoPlanning)
             .padding(vertical = 24.dp)
     ) {
-        Text("智能排程", color = colors.accent, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text("智能排程", color = colors.accent, fontSize = 15.sp, fontWeight = FontWeight.ExtraBold)
+            Spacer(Modifier.width(10.dp))
+            EnglishLabel("SMART SCHEDULING")
+        }
         Spacer(Modifier.height(8.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
             Text(
@@ -548,9 +573,10 @@ private fun LongTermSection(
                 color = colors.ink,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.ExtraBold,
-                letterSpacing = (-0.6).sp,
-                modifier = Modifier.weight(1f)
+                letterSpacing = (-0.6).sp
             )
+            Spacer(Modifier.width(10.dp))
+            EnglishLabel("LONG-TERM GOALS", Modifier.weight(1f))
             Text(
                 "↗",
                 color = colors.ink2,
@@ -590,14 +616,14 @@ private fun LongTermSection(
         Spacer(Modifier.height(3.dp))
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Top) {
             Box(Modifier.width(80.dp), contentAlignment = Alignment.Center) {
-                Text("进行中", color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.Medium)
+                Text("进行中", color = colors.muted, fontSize = captionSize(12f), fontWeight = FontWeight.Medium)
             }
             Spacer(Modifier.width(18.dp))
             Text(
                 summaryMeta,
                 color = colors.muted,
-                fontSize = captionSize(),
-                lineHeight = 21.sp,
+                fontSize = captionSize(13f),
+                lineHeight = 20.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
@@ -646,11 +672,15 @@ private fun PrioritySpot(task: Task, state: AppUiState, onClick: () -> Unit) {
     val spotBg = if (colors.dark) Color(0xFF3A2D20) else Color(0xFFF7E9D9)
     val spotInk = if (colors.dark) Color(0xFFF2D2A9) else Color(0xFF744620)
     val spotRing = if (colors.dark) Color(0xFF8C6C4A) else Color(0xFFB58354)
+    val display = LocalDisplayOptions.current
+    val shape = RoundedCornerShape(20.dp)
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(spotBg)
+            .then(
+                if (display.glassEnabled) Modifier.glassSurface(spotBg, shape, display.glassDistortion)
+                else Modifier.clip(shape).background(spotBg)
+            )
             .clickable(onClick = onClick)
             .padding(20.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -659,7 +689,7 @@ private fun PrioritySpot(task: Task, state: AppUiState, onClick: () -> Unit) {
             Text(
                 priorityTag(task),
                 color = spotInk.copy(alpha = 0.8f),
-                fontSize = captionSize(),
+                fontSize = captionSize(12f),
                 fontWeight = FontWeight.Bold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -678,7 +708,7 @@ private fun PrioritySpot(task: Task, state: AppUiState, onClick: () -> Unit) {
             Text(
                 priorityBottomText(task, state),
                 color = spotInk,
-                fontSize = captionSize(),
+                fontSize = captionSize(13f),
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
@@ -746,8 +776,8 @@ private fun TaskRow(
             Text(
                 taskMeta(task, state, tone.ink),
                 color = colors.body,
-                fontSize = captionSize(),
-                lineHeight = 21.sp,
+                fontSize = captionSize(13f),
+                lineHeight = 19.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis
             )
@@ -764,7 +794,7 @@ private fun TaskRow(
                 task.week != null -> colors.accent
                 else -> colors.warn
             },
-            fontSize = captionSize(),
+            fontSize = captionSize(12f),
             fontWeight = FontWeight.Bold,
             maxLines = 1
         )
@@ -805,8 +835,8 @@ private fun GoalSpot(goal: Goal, onAdvance: () -> Unit, onLongClick: () -> Unit)
             Text(
                 "第 ${goal.currentWeek} 周 · 本周 ${goal.doneHours}/${goal.weeklyHours} 小时",
                 color = colors.body,
-                fontSize = captionSize(),
-                lineHeight = 20.sp
+                fontSize = captionSize(13f),
+                lineHeight = 19.sp
             )
             Spacer(Modifier.height(9.dp))
             ProgressBar(goal.progress / 100f, colors.ok)
@@ -1038,10 +1068,7 @@ fun AddTaskDialog(
                     if (scheduleEnabled) Icon(Icons.Filled.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(13.dp))
                 }
                 Spacer(Modifier.width(8.dp))
-                Column {
-                    Text("自己安排时间", color = colors.ink, fontSize = captionSize(), fontWeight = FontWeight.SemiBold)
-                    Text("不勾选则保存到「待安排」", color = colors.muted, fontSize = captionSize(13f))
-                }
+                Text("自己安排时间", color = colors.ink, fontSize = captionSize(13f), fontWeight = FontWeight.SemiBold)
             }
             if (scheduleEnabled) {
                 Spacer(Modifier.height(8.dp))
@@ -1139,7 +1166,7 @@ fun AddTaskDialog(
                             showCoursePicker = false
                         }
                         .padding(vertical = 10.dp)
-                ) { Text("不关联课程", color = colors.ink, fontSize = captionSize()) }
+                ) { Text("不关联课程", color = colors.ink, fontSize = captionSize(13f)) }
                 state.courses.forEach { course ->
                     Row(
                         Modifier
@@ -1153,7 +1180,7 @@ fun AddTaskDialog(
                     ) {
                         Box(Modifier.size(8.dp).clip(RoundedCornerShape(4.dp)).background(toneOf(course.colorHex, colors.dark).base))
                         Spacer(Modifier.width(8.dp))
-                        Text(course.name, color = colors.ink, fontSize = captionSize())
+                        Text(course.name, color = colors.ink, fontSize = captionSize(13f))
                     }
                 }
             }

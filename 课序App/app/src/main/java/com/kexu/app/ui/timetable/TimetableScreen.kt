@@ -67,6 +67,7 @@ import com.kexu.app.domain.Meeting
 import com.kexu.app.domain.Task
 import com.kexu.app.ui.AppUiState
 import com.kexu.app.ui.KexuViewModel
+import com.kexu.app.ui.components.EnglishCaption
 import com.kexu.app.ui.components.KexuDialog
 import com.kexu.app.ui.components.PrimaryButton
 import com.kexu.app.ui.courses.AddCourseDialog
@@ -139,6 +140,7 @@ fun TimetableScreen(state: AppUiState, vm: KexuViewModel, onOpenPeriodSettings: 
                 Text("第 $week 教学周 · 共 ${state.semester.totalWeeks} 周", color = colors.accent2, fontSize = 11.5.sp, fontWeight = FontWeight.SemiBold)
             }
             Spacer(Modifier.height(2.dp))
+            EnglishCaption("TIMETABLE · WEEK $week")
             Text("课程表", color = colors.ink, fontSize = (27f * fonts.title / fonts.body).sp, fontWeight = FontWeight.ExtraBold, letterSpacing = (-0.5).sp)
             Spacer(Modifier.height(8.dp))
             Row(verticalAlignment = Alignment.CenterVertically) {

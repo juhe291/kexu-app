@@ -53,6 +53,30 @@ data class FontScales(
 )
 val LocalFontScales = staticCompositionLocalOf { FontScales() }
 
+/** 显示选项：辅助文字透明度、色块透明度、玻璃拟态开关。 */
+data class DisplayOptions(
+    val textOpacity: Float = 1f,
+    val blockOpacity: Float = 1f,
+    val glassEnabled: Boolean = true,
+    val glassDistortion: Boolean = true
+)
+val LocalDisplayOptions = staticCompositionLocalOf { DisplayOptions() }
+
+private fun adjustColors(base: KexuColors, display: DisplayOptions): KexuColors {
+    val t = display.textOpacity.coerceIn(0.4f, 1f)
+    val b = display.blockOpacity.coerceIn(0.4f, 1f)
+    return base.copy(
+        // 辅助说明文字更浅：透明度越低越淡
+        muted = base.muted.copy(alpha = base.muted.alpha * t),
+        body = base.body.copy(alpha = base.body.alpha * (0.72f + 0.28f * t)),
+        // 色块/浅底可调透明度
+        surface2 = base.surface2.copy(alpha = b),
+        accentSoft = base.accentSoft.copy(alpha = b),
+        line = base.line.copy(alpha = 0.55f + 0.45f * b),
+        gridLine = base.gridLine.copy(alpha = 0.55f + 0.45f * b)
+    )
+}
+
 fun hexColor(hex: String): Color = runCatching { Color(AndroidColor.parseColor(hex)) }
     .getOrDefault(Color(0xFF305FD6))
 
@@ -76,7 +100,7 @@ private fun lightColors(accentHex: String): KexuColors {
         surface2 = Color(0xFFEDF2F8),
         ink = Color(0xFF182538),
         ink2 = Color(0xFF35465A),
-        muted = Color(0xFF596B7F),
+        muted = Color(0xFF6C7D91),
         line = Color(0xFFE4EAF1),
         gridLine = Color(0xFFE9EEF4),
         accent = accent,
@@ -100,7 +124,7 @@ private fun darkColors(accentHex: String): KexuColors {
         surface2 = Color(0xFF253347),
         ink = Color(0xFFF1F5FC),
         ink2 = Color(0xFFD0D9E7),
-        muted = Color(0xFFACB9C9),
+        muted = Color(0xFFB5C2D2),
         line = Color(0xFF344355),
         gridLine = Color(0xFF2E3C4E),
         accent = accent,
@@ -133,6 +157,10 @@ private val KexuTypography = Typography(
 fun KexuTheme(
     themeMode: String,
     accentHex: String,
+    textOpacity: Int = 100,
+    blockOpacity: Int = 100,
+    glassEnabled: Boolean = true,
+    glassDistortion: Boolean = true,
     content: @Composable () -> Unit
 ) {
     val systemDark = isSystemInDarkTheme()
@@ -141,9 +169,18 @@ fun KexuTheme(
         "light" -> false
         else -> systemDark
     }
-    val colors = remember(dark, accentHex) {
+    val baseColors = remember(dark, accentHex) {
         if (dark) darkColors(accentHex) else lightColors(accentHex)
     }
+    val display = remember(textOpacity, blockOpacity, glassEnabled, glassDistortion) {
+        DisplayOptions(
+            textOpacity = textOpacity / 100f,
+            blockOpacity = blockOpacity / 100f,
+            glassEnabled = glassEnabled,
+            glassDistortion = glassDistortion
+        )
+    }
+    val colors = remember(baseColors, display) { adjustColors(baseColors, display) }
     val scheme = remember(dark, colors) {
         if (dark) {
             darkColorScheme(
@@ -173,7 +210,7 @@ fun KexuTheme(
             )
         }
     }
-    CompositionLocalProvider(LocalKexuColors provides colors) {
+    CompositionLocalProvider(LocalKexuColors provides colors, LocalDisplayOptions provides display) {
         MaterialTheme(colorScheme = scheme, typography = KexuTypography, content = content)
     }
 }

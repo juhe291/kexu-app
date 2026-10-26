@@ -152,6 +152,14 @@ data class Prefs(
     val fontBodyScale: Int = 100,
     val fontCaptionScale: Int = 100,
     val fontTimetableScale: Int = 100,
+    /** 辅助说明文字透明度：100 = 不透明，70 = 更浅。 */
+    val textOpacity: Int = 100,
+    /** 色块（卡片/浅色块）透明度：100 = 不透明，70 = 半透明。 */
+    val blockOpacity: Int = 100,
+    /** 玻璃拟态：大卡片使用半透明磨砂质感。 */
+    val glassEnabled: Boolean = true,
+    /** 玻璃边缘畸变：卡片边缘加折射高光/暗边。 */
+    val glassDistortion: Boolean = true,
     val taskSort: String = "default"
 ) {
     companion object {

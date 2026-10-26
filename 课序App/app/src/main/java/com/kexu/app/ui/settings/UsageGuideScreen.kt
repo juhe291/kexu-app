@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.kexu.app.BuildConfig
+import com.kexu.app.ui.components.EnglishCaption
 import com.kexu.app.ui.components.SettingsHero
 import com.kexu.app.ui.components.SettingsSubHeader
 import com.kexu.app.ui.theme.LocalKexuColors
@@ -31,10 +32,11 @@ fun UsageGuideScreen(onBack: () -> Unit) {
             .verticalScroll(rememberScrollState())
             .padding(start = 23.dp, end = 23.dp, top = 22.dp, bottom = 36.dp)
     ) {
+        EnglishCaption("USER GUIDE · OFFLINE")
         SettingsSubHeader(title = "使用说明", onBack = onBack)
         SettingsHero(
             title = "课序怎么用",
-            body = "导入课表 → 添加任务 → 规划时间 → 提醒与复盘。下面是每个模块的具体用法，全部功能离线可用。"
+            body = "导入课表 → 添加任务 → 规划时间 → 提醒与复盘。核心功能全部离线可用，只有「检查更新」会联网读取 GitHub。"
         )
         Spacer(Modifier.height(10.dp))
 
@@ -94,7 +96,7 @@ fun UsageGuideScreen(onBack: () -> Unit) {
         )
         Spacer(Modifier.height(18.dp))
         Text(
-            "课序 V${BuildConfig.VERSION_NAME} · 数据保存在本机，不联网、无账号、不上传。",
+            "课序 V${BuildConfig.VERSION_NAME} · 数据保存在本机；只有检查更新会访问 GitHub，不上传任何内容。",
             color = colors.muted,
             fontSize = 14.sp,
             lineHeight = 21.sp

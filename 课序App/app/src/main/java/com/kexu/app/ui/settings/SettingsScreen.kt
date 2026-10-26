@@ -64,7 +64,9 @@ import com.kexu.app.ui.AppUiState
 import com.kexu.app.ui.KexuViewModel
 import com.kexu.app.ui.components.ConfirmDialog
 import com.kexu.app.ui.components.DataActionRow
+import com.kexu.app.ui.components.EnglishCaption
 import com.kexu.app.ui.components.KSegmented
+import com.kexu.app.ui.components.glassSurface
 import com.kexu.app.ui.components.KStepper
 import com.kexu.app.ui.components.KSwitch
 import com.kexu.app.ui.components.KTextField
@@ -78,6 +80,7 @@ import com.kexu.app.ui.components.SettingsHero
 import com.kexu.app.ui.components.SettingsSubHeader
 import com.kexu.app.ui.imports.ImportPreviewDialog
 import com.kexu.app.ui.theme.LocalFontScales
+import com.kexu.app.ui.theme.LocalDisplayOptions
 import com.kexu.app.ui.theme.LocalKexuColors
 import com.kexu.app.ui.theme.hexColor
 import com.kexu.app.ui.theme.toneOf
@@ -126,6 +129,7 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
     val colors = LocalKexuColors.current
     val fonts = LocalFontScales.current
     var showAbout by remember { mutableStateOf(false) }
+    var showUpdate by remember { mutableStateOf(false) }
     Column(
         Modifier
             .fillMaxSize()
@@ -135,6 +139,7 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
     ) {
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom) {
             Column(Modifier.weight(1f)) {
+                EnglishCaption("SETTINGS · PREFERENCES")
                 Text("个人配置 / 日程偏好", color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.SemiBold)
                 Spacer(Modifier.height(6.dp))
                 Text(
@@ -194,14 +199,24 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
         Spacer(Modifier.height(22.dp))
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
             Text(
-                "使用说明",
+                "检查更新",
                 color = colors.accent,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
+                    .clickable { showUpdate = true }
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
+            )
+            Text(
+                "使用说明",
+                color = colors.muted,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier
+                    .clip(RoundedCornerShape(10.dp))
                     .clickable { onOpen("help") }
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             )
             Text(
                 "关于课序",
@@ -211,22 +226,27 @@ private fun SettingsRoot(state: AppUiState, onOpen: (String) -> Unit) {
                 modifier = Modifier
                     .clip(RoundedCornerShape(10.dp))
                     .clickable { showAbout = true }
-                    .padding(horizontal = 14.dp, vertical = 10.dp)
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             )
         }
     }
     if (showAbout) AboutDialog(onDismiss = { showAbout = false })
+    if (showUpdate) CheckUpdateDialog(onDismiss = { showUpdate = false })
 }
 
 /** 设置首页特色卡：accentSoft 底 + 22sp 标题 + 三根彩色竖条 motif。 */
 @Composable
 private fun CourseSemesterFeatureCard(onClick: () -> Unit) {
     val colors = LocalKexuColors.current
+    val display = LocalDisplayOptions.current
+    val shape = RoundedCornerShape(20.dp)
     Row(
         Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(20.dp))
-            .background(colors.accentSoft)
+            .then(
+                if (display.glassEnabled) Modifier.glassSurface(colors.accentSoft, shape, display.glassDistortion)
+                else Modifier.clip(shape).background(colors.accentSoft)
+            )
             .clickable(onClick = onClick)
             .padding(horizontal = 19.dp, vertical = 20.dp),
         verticalAlignment = Alignment.CenterVertically
@@ -995,6 +1015,30 @@ private fun AppearanceSettings(state: AppUiState, vm: KexuViewModel, onBack: () 
             }
         }
 
+        SectionTitle("透明度与质感")
+        SettingBlock("说明文字透明度", "眉标、辅助说明与提示文字") {
+            KSegmented(
+                listOf("100" to "不透明", "85" to "浅一点", "70" to "更浅"),
+                state.prefs.textOpacity.toString()
+            ) { value -> vm.updatePrefs { it.copy(textOpacity = value.toInt()) } }
+        }
+        SettingBlock("色块透明度", "卡片底色、浅色块与分隔线") {
+            KSegmented(
+                listOf("100" to "不透明", "85" to "浅一点", "70" to "更透"),
+                state.prefs.blockOpacity.toString()
+            ) { value -> vm.updatePrefs { it.copy(blockOpacity = value.toInt()) } }
+        }
+        SettingBlock("玻璃质感", "大卡片使用半透明磨砂效果") {
+            KSwitch(state.prefs.glassEnabled) { on ->
+                vm.updatePrefs { p -> p.copy(glassEnabled = on) }
+            }
+        }
+        SettingBlock("玻璃边缘畸变", "卡片边缘的折射高光与暗边") {
+            KSwitch(state.prefs.glassDistortion) { on ->
+                vm.updatePrefs { p -> p.copy(glassDistortion = on) }
+            }
+        }
+
         Column(
             Modifier
                 .fillMaxWidth()
@@ -1160,7 +1204,7 @@ private fun AboutDialog(onDismiss: () -> Unit) {
             Spacer(Modifier.height(14.dp))
             AboutLine(
                 "数据与隐私",
-                "所有课程、任务与设置只保存在本机 Room 数据库，不联网、不上传；可在「数据与备份」导出 JSON，换机时导入恢复。"
+                "所有课程、任务与设置只保存在本机 Room 数据库；只有「检查更新」会访问 GitHub，不上传任何内容。可在「数据与备份」导出 JSON，换机时导入恢复。"
             )
             Spacer(Modifier.height(14.dp))
             AboutLine(

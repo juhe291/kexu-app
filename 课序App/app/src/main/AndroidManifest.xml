@@ -5,6 +5,8 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <!-- Android 12+：精确闹钟需用户授权（设置页提供跳转），未授权时自动回退 WorkManager -->
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
+    <!-- 仅「检查更新」访问 GitHub Releases 时需要网络；其余功能完全离线 -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"

@@ -66,6 +66,22 @@ private data class PlanSuggestion(
 /** 本周节奏的星期字母（一~日），与 KexuCore.WEEKDAY_CN 的下标一致（周一 = 0）。 */
 private val RHYTHM_DAY_LETTERS = listOf("一", "二", "三", "四", "五", "六", "日")
 
+/** 小号英文大写装饰：11sp、拉开字距、muted 55% 透明度，只做层级点缀，不抢主标题。 */
+@Composable
+private fun EnglishLabel(text: String, modifier: Modifier = Modifier) {
+    Text(
+        text,
+        color = LocalKexuColors.current.muted.copy(alpha = 0.55f),
+        fontSize = captionSize(9f),
+        lineHeight = captionSize(10f),
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.1.sp,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        modifier = modifier
+    )
+}
+
 /**
  * 规划页（V11 之后的新样式）：
  * - 没有待安排任务：深色 hero 空状态 + 本周节奏（7 日节奏条 + 三列统计）+ 开始长期学习计划 + 排程策略；
@@ -162,18 +178,13 @@ fun PlanningScreen(
     ) {
         item {
             PageHeader(eyebrow = "智能时间规划", title = "规划")
-            Text(
-                "结合课程与空闲时间，为任务找到合适的位置",
-                color = colors.body,
-                fontSize = captionSize(),
-                lineHeight = 21.sp
-            )
-            Spacer(Modifier.height(20.dp))
         }
 
         // ---------------------------------------------------------------- 空状态
         if (focus == null) {
             item {
+                EnglishLabel("PLAN")
+                Spacer(Modifier.height(2.dp))
                 EmptyPlanHero(onAddTask = goTasks)
             }
             item {
@@ -201,6 +212,8 @@ fun PlanningScreen(
             Spacer(Modifier.height(12.dp))
         }
         item {
+            EnglishLabel("PLAN")
+            Spacer(Modifier.height(2.dp))
             PlanHero(over = "本周建议 · 让计划真正落地", title = heroTitle, body = heroBody)
             PlanSectionHead(title = "推荐安排") {
                 Text(
@@ -214,7 +227,7 @@ fun PlanningScreen(
                         hasConflict -> colors.warn
                         else -> colors.ok
                     },
-                    fontSize = captionSize(),
+                    fontSize = captionSize(12f),
                     fontWeight = FontWeight.SemiBold
                 )
             }
@@ -225,8 +238,8 @@ fun PlanningScreen(
                 Text(
                     "未来一周没有找到足够长的空闲时间，可在设置中调整每日可安排时间。",
                     color = colors.body,
-                    fontSize = captionSize(),
-                    lineHeight = 22.sp,
+                    fontSize = captionSize(13f),
+                    lineHeight = 20.sp,
                     modifier = Modifier.padding(bottom = 6.dp)
                 )
             }
@@ -281,7 +294,7 @@ fun PlanningScreen(
 
         item {
             PlanSectionHead(title = "长期目标") {
-                Text("每周持续推进", color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.Medium)
+                Text("每周持续推进", color = colors.muted, fontSize = captionSize(12f), fontWeight = FontWeight.Medium)
             }
             GoalSpot(goal = state.goals.firstOrNull())
         }
@@ -295,7 +308,7 @@ fun PlanningScreen(
         KexuDialog(title = "选择要安排的任务", onDismiss = { showTaskPicker = false }) {
             Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
                 if (candidates.isEmpty()) {
-                    Text("没有待安排的任务。", color = colors.muted, fontSize = captionSize())
+                    Text("没有待安排的任务。", color = colors.muted, fontSize = captionSize(13f))
                 }
                 candidates.forEach { task ->
                     val selected = task.id == focus?.id
@@ -323,7 +336,7 @@ fun PlanningScreen(
                             Text(
                                 "待安排 · 预计 ${KexuCore.formatDuration(task.estimatedMinutes)}",
                                 color = colors.muted,
-                                fontSize = captionSize(),
+                                fontSize = captionSize(12f),
                                 modifier = Modifier.padding(top = 3.dp)
                             )
                         }
@@ -361,7 +374,7 @@ private fun EmptyPlanHero(onAddTask: () -> Unit) {
     PlanHero(
         over = "本周建议",
         title = "让计划真正落地",
-        body = "目前还没有待安排任务。添加任务后，系统会根据课程与空闲时间生成建议。",
+        body = "还没有待安排任务，添加后会自动生成建议。",
         footer = {
             Row(
                 Modifier
@@ -395,7 +408,7 @@ private fun WeekRhythmBlock(
 ) {
     val colors = LocalKexuColors.current
     Column(Modifier.fillMaxWidth()) {
-        PlanSectionHead(title = "本周节奏") {
+        PlanSectionHead(title = "本周节奏", eyebrow = "WEEKLY RHYTHM") {
             Text(
                 "长期学习",
                 color = colors.ok,
@@ -428,7 +441,7 @@ private fun WeekRhythmBlock(
                     Text(
                         letter,
                         color = colors.muted,
-                        fontSize = captionSize(),
+                        fontSize = captionSize(12f),
                         fontWeight = FontWeight.SemiBold
                     )
                     Spacer(Modifier.height(9.dp))
@@ -457,7 +470,7 @@ private fun WeekRhythmBlock(
     }
 }
 
-/** 三列统计中的一列：14sp muted 标签 + 26sp 数字（可带 14sp 单位）。 */
+/** 三列统计中的一列：12sp muted 标签 + 26sp 数字（可带 12sp 单位）。 */
 @Composable
 private fun RhythmStat(
     label: String,
@@ -467,7 +480,7 @@ private fun RhythmStat(
 ) {
     val colors = LocalKexuColors.current
     Column(horizontalAlignment = if (alignEnd) Alignment.End else Alignment.Start) {
-        Text(label, color = colors.muted, fontSize = captionSize(), fontWeight = FontWeight.Medium)
+        Text(label, color = colors.muted, fontSize = captionSize(12f), fontWeight = FontWeight.Medium)
         Spacer(Modifier.height(6.dp))
         Row(verticalAlignment = Alignment.Bottom) {
             Text(
@@ -483,7 +496,7 @@ private fun RhythmStat(
                 Text(
                     unit,
                     color = colors.muted,
-                    fontSize = captionSize(),
+                    fontSize = captionSize(12f),
                     modifier = Modifier.padding(bottom = 3.dp)
                 )
             }
@@ -521,13 +534,13 @@ private fun StartGoalAction(onClick: () -> Unit) {
     }
 }
 
-/** 排程策略：细分隔线 + 24sp 标题 +「调整 ›」+ 14sp muted 摘要（取自设置项）。 */
+/** 排程策略：细分隔线 + 英文眉标 + 24sp 标题 +「调整 ›」+ 一行 13sp muted 摘要（取自设置项）。 */
 @Composable
 private fun ScheduleStrategyBlock(state: AppUiState, onAdjust: () -> Unit) {
     val colors = LocalKexuColors.current
     Column(Modifier.fillMaxWidth()) {
         HorizontalDivider(Modifier.padding(top = 24.dp), color = colors.line)
-        PlanSectionHead(title = "排程策略") {
+        PlanSectionHead(title = "排程策略", eyebrow = "SCHEDULING") {
             Text(
                 "调整 ›",
                 color = colors.accent,
@@ -544,17 +557,10 @@ private fun ScheduleStrategyBlock(state: AppUiState, onAdjust: () -> Unit) {
                 "默认任务 ${state.prefs.defaultTaskMinutes} 分钟 · " +
                 "专注上限 ${state.prefs.focusMinutes} 分钟",
             color = colors.muted,
-            fontSize = captionSize(),
-            lineHeight = 22.sp
+            fontSize = captionSize(13f),
+            lineHeight = 19.sp
         )
         Spacer(Modifier.height(6.dp))
-        Text(
-            "优先保护固定课程与休息时间，不移动你锁定的任务。",
-            color = colors.muted,
-            fontSize = captionSize(),
-            lineHeight = 22.sp
-        )
-        Spacer(Modifier.height(4.dp))
     }
 }
 
@@ -592,7 +598,7 @@ private fun PlanHero(
                 .border(1.dp, Color.White.copy(alpha = 0.04f), CircleShape)
         )
         Column(Modifier.padding(start = 24.dp, end = 24.dp, top = 23.dp, bottom = 25.dp)) {
-            Text(over, color = overColor, fontSize = captionSize(), fontWeight = FontWeight.SemiBold)
+            Text(over, color = overColor, fontSize = captionSize(12f), fontWeight = FontWeight.SemiBold)
             Text(
                 title,
                 color = foreground,
@@ -619,22 +625,31 @@ private fun PlanHero(
     }
 }
 
-/** V11 section-head：24sp 标题 + 右侧链接/说明。 */
+/** V11 section-head：小号英文眉标（可选）+ 24sp 标题 + 右侧链接/说明。 */
 @Composable
-private fun PlanSectionHead(title: String, trailing: (@Composable () -> Unit)? = null) {
+private fun PlanSectionHead(
+    title: String,
+    eyebrow: String? = null,
+    trailing: (@Composable () -> Unit)? = null
+) {
     val colors = LocalKexuColors.current
     Row(
         Modifier.fillMaxWidth().padding(top = 26.dp, bottom = 14.dp),
         verticalAlignment = Alignment.Bottom
     ) {
-        Text(
-            title,
-            color = colors.ink,
-            fontSize = 24.sp,
-            fontWeight = FontWeight.ExtraBold,
-            letterSpacing = (-0.65).sp,
-            modifier = Modifier.weight(1f)
-        )
+        Column(Modifier.weight(1f)) {
+            if (eyebrow != null) {
+                EnglishLabel(eyebrow)
+                Spacer(Modifier.height(5.dp))
+            }
+            Text(
+                title,
+                color = colors.ink,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.ExtraBold,
+                letterSpacing = (-0.65).sp
+            )
+        }
         trailing?.invoke()
     }
 }
@@ -651,7 +666,7 @@ private fun CurrentTaskRow(title: String, onClick: () -> Unit) {
             .padding(vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text("当前任务：", color = colors.muted, fontSize = captionSize())
+        Text("当前任务：", color = colors.muted, fontSize = captionSize(12f))
         Spacer(Modifier.width(2.dp))
         Text(
             title,
@@ -704,7 +719,7 @@ private fun PlanBlock(index: Int, suggestion: PlanSuggestion, last: Boolean, tas
             Text(
                 "${KexuCore.WEEKDAY_CN[suggestion.weekday]} · ${KexuCore.fmtCN(suggestion.date)}",
                 color = colors.muted,
-                fontSize = 15.sp,
+                fontSize = captionSize(13f),
                 fontWeight = FontWeight.SemiBold
             )
             Text(
@@ -743,7 +758,7 @@ private fun SoftButton(text: String, modifier: Modifier = Modifier, onClick: () 
     }
 }
 
-/** V11 goal-spot：51sp 进度数字 + 目标名 + 14sp 进度信息 + 进度条。 */
+/** V11 goal-spot：51sp 进度数字 + 目标名 + 13sp 进度信息 + 进度条。 */
 @Composable
 private fun GoalSpot(goal: Goal?) {
     val colors = LocalKexuColors.current
@@ -751,8 +766,8 @@ private fun GoalSpot(goal: Goal?) {
         Text(
             "还没有长期目标，可在待办页添加并每周推进。",
             color = colors.body,
-            fontSize = captionSize(),
-            lineHeight = 21.sp
+            fontSize = captionSize(13f),
+            lineHeight = 20.sp
         )
         return
     }
@@ -780,7 +795,7 @@ private fun GoalSpot(goal: Goal?) {
             Text(
                 "第 ${goal.currentWeek} / ${goal.totalWeeks} 周 · 本周已学 ${goal.doneHours} / ${goal.weeklyHours} 小时",
                 color = colors.body,
-                fontSize = captionSize()
+                fontSize = captionSize(13f)
             )
             Spacer(Modifier.height(9.dp))
             Box(

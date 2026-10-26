@@ -51,6 +51,10 @@ class SettingsStore(context: Context) {
             fontBodyScale = data[K.fontBodyScale] ?: 100,
             fontCaptionScale = data[K.fontCaptionScale] ?: 100,
             fontTimetableScale = data[K.fontTimetableScale] ?: 100,
+        textOpacity = data[K.textOpacity] ?: 100,
+        blockOpacity = data[K.blockOpacity] ?: 100,
+        glassEnabled = data[K.glassEnabled] ?: true,
+        glassDistortion = data[K.glassDistortion] ?: true,
             taskSort = data[K.taskSort] ?: "default"
         )
     }
@@ -87,6 +91,10 @@ class SettingsStore(context: Context) {
             data[K.fontBodyScale] = prefs.fontBodyScale
             data[K.fontCaptionScale] = prefs.fontCaptionScale
             data[K.fontTimetableScale] = prefs.fontTimetableScale
+        data[K.textOpacity] = prefs.textOpacity
+        data[K.blockOpacity] = prefs.blockOpacity
+        data[K.glassEnabled] = prefs.glassEnabled
+        data[K.glassDistortion] = prefs.glassDistortion
             data[K.taskSort] = prefs.taskSort
         }
     }
@@ -122,6 +130,10 @@ class SettingsStore(context: Context) {
         val fontBodyScale = intPreferencesKey("font_body_scale")
         val fontCaptionScale = intPreferencesKey("font_caption_scale")
         val fontTimetableScale = intPreferencesKey("font_timetable_scale")
+    val textOpacity = intPreferencesKey("text_opacity")
+    val blockOpacity = intPreferencesKey("block_opacity")
+    val glassEnabled = booleanPreferencesKey("glass_enabled")
+    val glassDistortion = booleanPreferencesKey("glass_distortion")
         val taskSort = stringPreferencesKey("task_sort")
     }
 }

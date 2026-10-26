@@ -54,3 +54,6 @@ Thumbs.db
 .tmp/
 .android-home/
 .m2/
+.android/
+.pdfbox.cache
+*.cache

@@ -68,7 +68,14 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-            KexuTheme(themeMode = state.prefs.themeMode, accentHex = state.prefs.accentHex) {
+            KexuTheme(
+                themeMode = state.prefs.themeMode,
+                accentHex = state.prefs.accentHex,
+                textOpacity = state.prefs.textOpacity,
+                blockOpacity = state.prefs.blockOpacity,
+                glassEnabled = state.prefs.glassEnabled,
+                glassDistortion = state.prefs.glassDistortion
+            ) {
                 val prefs = state.prefs
                 val scales = FontScales(
                     title = prefs.fontTitleScale / 100f,
