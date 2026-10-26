@@ -57,3 +57,14 @@ Thumbs.db
 .android/
 .pdfbox.cache
 *.cache
+# 本地开发资料 / 原型 / 自测（不随仓库上传）
+计划书.md
+README_V8.md
+APP自测清单.md
+课序_V8_完整交互原型.html
+课序_V11_全页面视觉重构_可交互.html
+V8预览长图/
+tools/
+tests/
+ui示例*/
+课序App/开发进度.md
