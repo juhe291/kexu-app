@@ -34,10 +34,17 @@ Kotlin + Jetpack Compose 的安卓端首个可运行版本，按《计划书》�
 adb install -r app/build/outputs/apk/debug/app-debug.apk
 ```
 
-正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.3.1，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
+正式版 APK 见 GitHub Releases：<https://github.com/juhe291/kexu-app/releases>（v1.3.2，R8 混淆，约 50 MB，debug 签名，可直接安装）；调试版可用 `./gradlew :app:assembleDebug` 自行构建。
 
 > 项目目录含中文，已在 `gradle.properties` 中加入 `android.overridePathCheck=true`；Gradle 构建时若遇到中文路径问题，可把项目复制/软链到纯英文路径再构建。
 
+## V1.3.2（玻璃边缘畸变加强 + 深色模式适配）
+
+- **边缘畸变更明显**：边缘厚度从约 1.2% 提升到 2.2%（2–6dp），高光更亮、暗边更深，内圈折射边加粗；浅色模式额外加一道斜向反光条，模拟厚玻璃的厚度感。
+- **深色模式适配**：玻璃底白色提亮大幅降低（顶部渐变 0.30→0.16），边缘高光从 0.9 降到 0.42、暗边加深到 0.55，深色卡片保持深蓝调、不发灰；浅色模式的白色斜向反光在深色下自动省略。
+- 「玻璃质感」「玻璃边缘畸变」两个开关均保留（设置 → 外观与显示 → 透明度与质感）。
+- JVM 测试 203 个全部通过；lint 0 errors（10 条依赖版本提示，非代码问题）。
+- 本版按约定只在本地构建，**未推送 GitHub**。
 ## V1.3.1（英文装饰收紧 + 玻璃质感增强 + 玻璃边缘畸变）
 
 - 英文小装饰缩小收紧：字号 9sp、字距 1.1sp，去掉额外上下 Spacer（今天日期标题上/统计前/复盘内、规划 hero 上、设置/使用说明/课表标题上），不再占大块高度。

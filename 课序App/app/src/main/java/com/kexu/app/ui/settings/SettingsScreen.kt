@@ -244,7 +244,7 @@ private fun CourseSemesterFeatureCard(onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .then(
-                if (display.glassEnabled) Modifier.glassSurface(colors.accentSoft, shape, display.glassDistortion)
+                if (display.glassEnabled) Modifier.glassSurface(colors.accentSoft, shape, display.glassDistortion, dark = colors.dark)
                 else Modifier.clip(shape).background(colors.accentSoft)
             )
             .clickable(onClick = onClick)

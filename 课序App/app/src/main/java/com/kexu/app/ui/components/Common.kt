@@ -582,7 +582,7 @@ fun SettingsHero(
         Modifier
             .fillMaxWidth()
             .then(
-                if (glass) Modifier.glassSurface(container, shape, LocalDisplayOptions.current.glassDistortion)
+                if (glass) Modifier.glassSurface(container, shape, LocalDisplayOptions.current.glassDistortion, dark = LocalKexuColors.current.dark)
                 else Modifier.clip(shape).background(container)
             )
             .padding(20.dp)
@@ -715,24 +715,29 @@ fun EnglishCaption(text: String, modifier: Modifier = Modifier) {
 }
 
 /**
- * 玻璃拟态卡：半透明彩色底 + 顶部高光；distortion 开启时加边缘折射（高光/暗边/内圈细边）。
- * 纯 Compose 绘制，不依赖系统模糊，低版本也有明显的玻璃边缘感。
+ * 玻璃拟态卡：半透明彩色底 + 顶部高光；distortion 开启时加夸张的边缘折射
+ * （粗高光 / 深暗边 / 内圈细边 / 斜向反光；暗色模式自动压低白色、加深暗边）。
  */
 fun Modifier.glassSurface(
     contentColor: Color,
     shape: RoundedCornerShape,
-    distortion: Boolean = true
+    distortion: Boolean = true,
+    dark: Boolean = false
 ): Modifier = this
     .clip(shape)
     .drawWithContent {
         val corner = CornerRadius(20.dp.toPx())
-        // 更透的玻璃底
-        drawRoundRect(color = contentColor.copy(alpha = 0.38f), cornerRadius = corner)
+        // 玻璃底：暗色模式压低白色提亮，避免卡片发灰
+        drawRoundRect(color = contentColor.copy(alpha = if (dark) 0.26f else 0.42f), cornerRadius = corner)
         drawRoundRect(
             brush = Brush.verticalGradient(
-                listOf(
-                    Color.White.copy(alpha = 0.30f),
-                    Color.White.copy(alpha = 0.04f),
+                if (dark) listOf(
+                    Color.White.copy(alpha = 0.16f),
+                    Color.White.copy(alpha = 0.02f),
+                    Color.Transparent
+                ) else listOf(
+                    Color.White.copy(alpha = 0.40f),
+                    Color.White.copy(alpha = 0.06f),
                     Color.Transparent
                 )
             ),
@@ -740,40 +745,56 @@ fun Modifier.glassSurface(
         )
         drawContent()
         if (distortion) {
-            val edge = (size.minDimension * 0.012f).coerceIn(1.5f, 3.5f)
-            // 左上高光 → 右下反光（玻璃边缘折射）
+            val edge = (size.minDimension * 0.022f).coerceIn(2f, 6f)
+            val highlight = if (dark) Color.White.copy(alpha = 0.42f) else Color.White.copy(alpha = 0.98f)
+            val shadow = if (dark) Color.Black.copy(alpha = 0.55f) else Color.Black.copy(alpha = 0.20f)
+            // 左上高光 → 右下反光（厚玻璃边缘）
             drawRoundRect(
                 brush = Brush.linearGradient(
-                    0f to Color.White.copy(alpha = 0.9f),
-                    0.35f to Color.White.copy(alpha = 0.14f),
+                    0f to highlight,
+                    0.35f to Color.White.copy(alpha = if (dark) 0.10f else 0.16f),
                     0.7f to Color.Transparent,
-                    1f to Color.White.copy(alpha = 0.35f),
+                    1f to Color.White.copy(alpha = if (dark) 0.18f else 0.45f),
                     start = Offset(0f, 0f),
                     end = Offset(size.width, size.height)
                 ),
-                style = Stroke(width = edge),
+                style = Stroke(width = edge * 1.25f),
                 cornerRadius = corner
             )
-            // 右下暗边 → 左上反光（厚度略大，像厚玻璃）
+            // 右下暗边 → 左上反光
             drawRoundRect(
                 brush = Brush.linearGradient(
-                    0f to Color.Black.copy(alpha = 0.12f),
-                    0.4f to Color.Transparent,
-                    1f to Color.White.copy(alpha = 0.28f),
+                    0f to shadow,
+                    0.38f to Color.Transparent,
+                    1f to highlight.copy(alpha = highlight.alpha * 0.5f),
                     start = Offset(size.width, size.height),
                     end = Offset(0f, 0f)
                 ),
-                style = Stroke(width = edge * 1.9f),
+                style = Stroke(width = edge * 2.3f),
                 cornerRadius = corner
             )
             // 内圈折射细边
-            val inset = 2.dp.toPx()
+            val inset = 3.dp.toPx()
             drawRoundRect(
-                color = Color.White.copy(alpha = 0.30f),
+                color = Color.White.copy(alpha = if (dark) 0.14f else 0.36f),
                 topLeft = Offset(inset, inset),
                 size = Size(size.width - inset * 2, size.height - inset * 2),
-                style = Stroke(width = 1.dp.toPx()),
-                cornerRadius = CornerRadius(18.dp.toPx())
+                style = Stroke(width = if (dark) 1.dp.toPx() else 1.5.dp.toPx()),
+                cornerRadius = CornerRadius(17.dp.toPx())
             )
+            // 浅色模式额外加一道斜向反光，增强玻璃厚度感（暗色模式省略，避免发白）
+            if (!dark) {
+                drawRoundRect(
+                    brush = Brush.linearGradient(
+                        0f to Color.Transparent,
+                        0.42f to Color.White.copy(alpha = 0.16f),
+                        0.52f to Color.White.copy(alpha = 0.05f),
+                        1f to Color.Transparent,
+                        start = Offset(size.width * 0.1f, size.height),
+                        end = Offset(size.width * 0.9f, 0f)
+                    ),
+                    cornerRadius = corner
+                )
+            }
         }
     }

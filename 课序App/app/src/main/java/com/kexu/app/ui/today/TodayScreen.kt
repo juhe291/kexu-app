@@ -571,7 +571,7 @@ private fun HeroCard(next: NextCourse?, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .then(
-                if (display.glassEnabled) Modifier.glassSurface(tone.bg, shape, display.glassDistortion)
+                if (display.glassEnabled) Modifier.glassSurface(tone.bg, shape, display.glassDistortion, dark = colors.dark)
                 else Modifier.clip(shape).background(tone.bg)
             )
             .clickable(enabled = next != null, onClick = onClick)

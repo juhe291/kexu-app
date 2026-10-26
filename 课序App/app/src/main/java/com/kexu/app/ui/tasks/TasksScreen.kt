@@ -678,7 +678,7 @@ private fun PrioritySpot(task: Task, state: AppUiState, onClick: () -> Unit) {
         Modifier
             .fillMaxWidth()
             .then(
-                if (display.glassEnabled) Modifier.glassSurface(spotBg, shape, display.glassDistortion)
+                if (display.glassEnabled) Modifier.glassSurface(spotBg, shape, display.glassDistortion, dark = colors.dark)
                 else Modifier.clip(shape).background(spotBg)
             )
             .clickable(onClick = onClick)
