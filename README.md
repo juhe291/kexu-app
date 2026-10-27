@@ -172,6 +172,11 @@ cd 课序App
 - R8 正式包与 debug 包同签名，可直接覆盖安装；上架应用商店需自备 release 签名。
 - 桌面小组件、周报增强不在当前 1.x 规划内。
 
+## 💬 反馈与联系
+
+- 🐞 Bug / 功能建议：欢迎提 [GitHub Issue](https://github.com/juhe291/kexu-app/issues)
+- ✉️ 邮箱：`juhe291@users.noreply.github.com`（虚拟邮箱，可转发到我的 GitHub 通知）
+- ⭐ 如果觉得有用，点个 Star 支持一下
 ## 📜 版本与许可
 
 - 版本更新记录见 [课序App/README.md](课序App/README.md)
