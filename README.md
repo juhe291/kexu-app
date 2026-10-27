@@ -175,7 +175,7 @@ cd 课序App
 ## 💬 反馈与联系
 
 - 🐞 Bug / 功能建议：欢迎提 [GitHub Issue](https://github.com/juhe291/kexu-app/issues)
-- ✉️ 邮箱：`juhe291@users.noreply.github.com`（虚拟邮箱，可转发到我的 GitHub 通知）
+- ✉️ 邮箱：`juhe291@users.noreply.github.com`（GitHub 虚拟邮箱，仅用于提交署名与隐私保护；联系请优先用 Issue）
 - ⭐ 如果觉得有用，点个 Star 支持一下
 ## 📜 版本与许可
 
